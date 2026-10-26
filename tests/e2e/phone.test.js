@@ -69,7 +69,7 @@ test('application : barre « accueil », glissement vers le haut, Précédent et
   await ctx.close();
 });
 
-test('pile de navigation : Travail liste puis détail, le retour porte le titre précédent', async () => {
+test('pile de navigation : Réalisations en liste puis détail, le retour porte le titre précédent', async () => {
   const { ctx, page } = await open();
   await unlock(page);
   await page.tap('#home [data-app=travail]');
@@ -79,9 +79,9 @@ test('pile de navigation : Travail liste puis détail, le retour porte le titre 
   assert.match(await page.locator('.ios-row-sub').first().innerText(), /^\d{4} – /, 'chaque réalisation affiche sa période');
   await page.locator('.ios-row-nav').first().tap();
   await page.waitForFunction(() => document.querySelectorAll('.screens .win-body').length === 2);
-  assert.equal(await page.locator('.back-label').innerText(), 'Travail');
+  assert.equal(await page.locator('.back-label').innerText(), 'Réalisations');
   assert.equal(await page.locator('.win-title').innerText(), title);
-  assert.equal(await page.locator('.back').getAttribute('aria-label'), 'Retour à Travail');
+  assert.equal(await page.locator('.back').getAttribute('aria-label'), 'Retour à Réalisations');
 
   await page.goBack(); // dépile un écran seulement
   await page.waitForFunction(() => document.querySelectorAll('.screens .win-body').length === 1);
@@ -182,6 +182,6 @@ test('taille de texte à 200 % : pas de défilement horizontal sur l\'accueil ni
     || [...document.querySelectorAll('#home, .win, .screens .win-body')].some((el) => el.scrollWidth > el.clientWidth + 1));
   assert.equal(await overflow(), false, 'accueil');
   await page.tap('#home [data-app=travail]');
-  assert.equal(await overflow(), false, 'liste Travail');
+  assert.equal(await overflow(), false, 'liste Réalisations');
   await ctx.close();
 });

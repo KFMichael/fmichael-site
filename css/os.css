@@ -405,7 +405,7 @@ html.phone-mode .win::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(env(safe-area-inset-bottom) + 2.5rem); pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--bg) 70%);
 }
-.large-title { margin: 0 0 1rem; font-size: var(--fs-large-title, 2.125rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; max-width: none; }
+.large-title { margin: 0 0 1rem; font-size: var(--fs-large-title, 2.125rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; max-width: none; overflow-wrap: anywhere; hyphens: auto; }
 html.phone-mode .win-body .card { background: var(--bg-grouped); border: 0; border-radius: 1.1rem; box-shadow: none; }
 html.phone-mode .win-body a { color: var(--tint); }
 
@@ -420,7 +420,7 @@ html.phone-mode .win-body a { color: var(--tint); }
 }
 .ios-list li:first-child .ios-row { padding-left: 1rem; }
 .ios-list li + li .ios-row { padding-left: 0; }
-.ios-row-text { display: grid; gap: 0.15rem; min-width: 0; }
+.ios-row-text { display: grid; gap: 0.15rem; min-width: 0; overflow-wrap: anywhere; }
 .ios-row-title { font-weight: 600; }
 .ios-row-sub { font-size: 0.875rem; color: var(--label-2); }
 .ios-chev { flex: none; color: var(--label-2); display: grid; place-items: center; }

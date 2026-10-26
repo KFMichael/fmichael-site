@@ -66,3 +66,7 @@ test('rowSummary : texte long tronqué avec une ellipse', () => {
   assert.ok(s.length <= 90);
   assert.ok(s.endsWith('…'));
 });
+
+test('rowSummary : le point d\'un nom de domaine ne coupe pas la phrase', () => {
+  assert.equal(rowSummary('Contexte. Sites sur louisvuitton.com, en ligne. Autre phrase.'), 'Sites sur louisvuitton.com, en ligne.');
+});

@@ -40,7 +40,7 @@ for (const scheme of ['light', 'dark']) {
       if (app === 'travail') {
         await page.tap('.ios-row-nav');
         await page.waitForTimeout(450);
-        assert.deepEqual(await violations(page), [], 'écran empilé (détail Travail)');
+        assert.deepEqual(await violations(page), [], 'écran empilé (détail Réalisations)');
       }
       await page.tap('#home-ind');
       await page.waitForTimeout(350);

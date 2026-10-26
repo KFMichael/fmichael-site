@@ -12,7 +12,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Pas de dépendance externe tant que ce n'est pas nécessaire (pas de CDN, pas de tracker).
 
 ## Structure
-- `index.html` : page unique avec les sections Accueil, Parcours, Travail, Hobbies, Contact.
+- `index.html` : page unique avec les sections Accueil, Parcours, Réalisations, Hobbies, Contact (l'identifiant interne de Réalisations reste `travail` : ancre `#travail`, `data-app="travail"`).
 - `css/style.css` : styles et variables (tokens dans `:root`).
 - `css/os.css` et `js/os.js` : mode bureau (écran verrouillé + fenêtres + dock), actif seulement si l'écran fait au moins 900×560 px (`html.os-mode`). Le contenu des fenêtres est copié depuis les sections de la page classique : modifier le texte dans `index.html` suffit.
 - `js/main.js` : thème clair/sombre et petites améliorations. Le site doit rester utilisable sans JS.
@@ -20,7 +20,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - `DESIGN.md` : charte visuelle.
 
 ## Décisions validées
-- Sections : Accueil, Parcours (frise, formation, certifications, langues), Travail (4 études de cas : contexte, rôle, résultat), Hobbies (tennis, football, jeux de société, voyage), Contact.
+- Sections : Accueil, Parcours (CV : une ligne par poste, formation, certifications, langues), Réalisations (études de cas : période, contexte, rôle, résultat ; une réalisation par expérience concernée, sans répéter la frise), Hobbies (tennis, football, jeux de société, voyage), Contact.
 - Les noms d'entreprises (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog) et les liens des 4 boutiques Shopify sont publiables, ainsi que le site portfolio de Mirielle Rohr (lien vers l'aperçu `mirielle-r-portfolio.pages.dev`, à remplacer par `www.miriellerohr.com` une fois le domaine branché).
 - Contact public : `k@fmichael.cloud`, LinkedIn `linkedin.com/in/kangahmichael`, GitHub `KFMichael`. Jamais de téléphone ni d'adresse postale.
 - Pas de CV en téléchargement ni de photo de Michaël. Hobbies : cartes photo, illustrations provisoires dans `img/hobby-*.svg` en attendant ses photos (`img/`, WebP, alt utile).
@@ -33,7 +33,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Travailler sur une branche ; ne fusionner dans `main` (donc ne publier) qu'après son accord explicite.
 
 ## Mode bureau (inspiré de frvky.online, identité propre)
-- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Travail, Disponibilité, Hobbies, Contact) et dock.
+- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Réalisations, Disponibilité, Hobbies, Contact) et dock.
 - Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
 - Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.
 - Choix par défaut en attendant l'avis de Michaël : fond dégradé abstrait (pas de photo), accent bleu, icônes dessinées maison.
@@ -43,7 +43,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Le site reste statique : pas de SwiftUI ni de SF Symbols (licence limitée aux plateformes Apple). On reprend les principes avec nos propres icônes SVG.
 - Couleurs sémantiques (`--bg`, `--bg-grouped`, `--label`, `--label-2`, `--separator`, `--tint`, `--red`, `--green`) définies une seule fois, en clair et en sombre, avec variantes `prefers-contrast: more` et `prefers-reduced-transparency`.
 - Texte en unités relatives ; styles de texte Dynamic Type (`font: -apple-system-*`) quand Safari iOS les gère. Testé à 200 % sans débordement.
-- Pile de navigation (`NavigationStack`) : grand titre qui se réduit, bouton de retour qui porte le titre de l'écran précédent, transition en glissement, retour par Précédent, Échap, glissement depuis le bord gauche. La barre « accueil » (clic ou glissement vers le haut) ferme l'application entière. Travail est la liste → détail ; les autres applications sont à un seul écran.
+- Pile de navigation (`NavigationStack`) : grand titre qui se réduit, bouton de retour qui porte le titre de l'écran précédent, transition en glissement, retour par Précédent, Échap, glissement depuis le bord gauche. La barre « accueil » (clic ou glissement vers le haut) ferme l'application entière. Réalisations est la liste → détail ; les autres applications sont à un seul écran.
 - Animations coupées si `prefers-reduced-motion` ; aucun geste obligatoire.
 
 ## Où on en est

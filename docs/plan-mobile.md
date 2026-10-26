@@ -48,6 +48,11 @@ Référence : le mobile de frvky.online (écran verrouillé plein écran, photo 
 - Dates des expériences ajoutées sur les cartes Travail (reprises de la frise Parcours : 2020–2026, 2022–aujourd'hui, 2017–2019, 2019–2020). La carte portfolio n'a pas de date : à compléter si Michaël la donne.
 - Correctif trouvé par les tests : sur le bureau, après Échap, le focus revient bien sur l'icône du dock.
 
+## Parcours et Réalisations (décision de Michaël : option C)
+- Parcours = le CV : une ligne par poste (dates, titre, entreprise), puis formation, certifications, langues. Omnilog garde sa phrase, il n'a pas de réalisation.
+- « Travail » devient **Réalisations** : contexte, rôle, résultat, avec la période. Les détails qui n'étaient que dans la frise (équipe de 9, mentorat, 12 développeurs et 4 QA, SAP Hybris, louisvuitton.com et DSI) y sont repris.
+- Les identifiants internes (`#travail`, `data-app="travail"`) ne changent pas : les liens existants restent valables.
+
 ## Reste à faire hors code
 - Vérifier que `k@fmichael.cloud` reçoit bien un mail envoyé depuis une autre adresse (Cloudflare → Email Routing → Activity log).
 - Supprimer l'enregistrement DNS `AAAA` vers IONOS s'il est encore là, puis cocher « Enforce HTTPS » dans GitHub Pages.

@@ -28,7 +28,7 @@
 
   var APPS = {
     parcours: { title: 'Parcours', src: '#parcours' },
-    travail: { title: 'Travail', build: buildTravail },
+    travail: { title: 'Réalisations', build: buildTravail },
     dispo: { title: 'Disponibilité', build: buildDispo },
     hobbies: { title: 'Hobbies', src: '#hobbies' },
     contact: { title: 'Contact', src: '#contact' },
@@ -109,7 +109,7 @@
     list.appendChild(homeItem('reglages', 'i-set', ICON_GEAR, 'Réglages'));
   }
 
-  /* ---------- Travail : liste, puis détail empilé (téléphone) ---------- */
+  /* ---------- Réalisations (id interne « travail ») : liste, puis détail empilé (téléphone) ---------- */
   function buildTravail(body, nav) {
     if (!nav) { cloneSection('#travail', body); return; }
     var sec = document.querySelector('#travail');

@@ -33,7 +33,7 @@
   // Sous-titre d'une ligne de liste : première phrase du contexte, sans le mot « Contexte. », tronquée
   function rowSummary(text) {
     var t = String(text).replace(/^\s*Contexte\.\s*/, '').trim();
-    var m = t.match(/^[^.]*\./);
+    var m = t.match(/^.*?\.(?=\s|$)/); // fin de phrase = point suivi d'une espace (pas le point d'un nom de domaine)
     var s = m ? m[0] : t;
     return s.length > 90 ? s.slice(0, 87).trimEnd() + '…' : s;
   }
