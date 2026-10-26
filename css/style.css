@@ -138,8 +138,10 @@ a { color: var(--accent); text-underline-offset: 0.2em; }
 .hobbies { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 .hobby { position: relative; overflow: hidden; border-radius: var(--radius); aspect-ratio: 4 / 5; background: #1f2937; isolation: isolate; }
 .hobby-media { display: block; width: 100%; height: 100%; object-fit: cover; }
-.hobby::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 55%); pointer-events: none; }
-.hobby h3 { position: absolute; z-index: 2; left: 1rem; right: 1rem; bottom: 0.9rem; margin: 0; color: #fff; font-size: 1.25rem; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); }
+.hobby::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.72) 40%, transparent 78%); pointer-events: none; }
+.hobby-text { position: absolute; z-index: 2; left: 1rem; right: 1rem; bottom: 0.9rem; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); }
+.hobby h3 { margin: 0; font-size: 1.25rem; }
+.hobby p { margin: 0.2rem 0 0; font-size: 0.95rem; line-height: 1.3; max-width: none; }
 @media (min-width: 700px) {
   .hobbies { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
   .hobby { aspect-ratio: 4 / 3; }
