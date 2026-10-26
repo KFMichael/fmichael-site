@@ -9,7 +9,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Seul le site est publié : `scripts/assemble-site.sh` copie `index.html`, `favicon.svg`, `CNAME`, `css/`, `js/` et `img/` dans `_site/` (et vérifie que chaque ressource référencée y est). **Tout nouveau fichier ou dossier nécessaire au site doit être ajouté à ce script**, sinon il n'est pas publié. `npm run check:site` le teste en local.
 - Domaine `fmichael.cloud` géré chez Cloudflare : 4 enregistrements `A` + `CNAME www` vers `kfmichael.github.io`, en « DNS only » (pas de proxy).
 - E-mail : `k@fmichael.cloud` redirigé par Cloudflare Email Routing vers la boîte personnelle de Michaël (jamais écrite dans le dépôt, qui est public).
-- Pas de dépendance externe tant que ce n'est pas nécessaire (pas de CDN, pas de tracker).
+- Pas de dépendance externe tant que ce n'est pas nécessaire (pas de CDN, pas de tracker), **sauf la mesure d'audience** validée par Michaël : Cloudflare Web Analytics (sans cookie), chargée par `js/analytics.js` uniquement sur `fmichael.cloud` / `www.fmichael.cloud`, jamais avec « Do Not Track », jamais pour un navigateur exclu via `?analytics=off` (`?analytics=on` pour réactiver). Les chiffres se lisent dans Cloudflare, Analytics & Logs, Web Analytics. Le jeton du site est public.
 
 ## Structure
 - `index.html` : page unique avec les sections Accueil, Parcours, Réalisations, Hobbies, Contact (l'identifiant interne de Réalisations reste `travail` : ancre `#travail`, `data-app="travail"`).

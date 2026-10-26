@@ -10,7 +10,7 @@ module.exports = [
     rules: { eqeqeq: ['error', 'always'], 'no-var': 'off', 'prefer-const': 'off' }
   },
   {
-    files: ['js/utils.js'],
+    files: ['js/utils.js', 'js/analytics.js'],
     languageOptions: { globals: { ...globals.browser, module: 'writable' } }
   },
   {

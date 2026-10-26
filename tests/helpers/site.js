@@ -10,7 +10,8 @@ const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 
 
 async function startSite() {
   const server = http.createServer((req, res) => {
-    const file = path.join(root, req.url === '/' ? 'index.html' : decodeURIComponent(req.url.split('?')[0]));
+    const pathname = decodeURIComponent(req.url.split('?')[0]);
+    const file = path.join(root, pathname === '/' ? 'index.html' : pathname);
     if (!file.startsWith(root) || !fs.existsSync(file)) { res.writeHead(404); res.end(); return; }
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream' });
     fs.createReadStream(file).pipe(res);
