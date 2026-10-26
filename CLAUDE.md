@@ -41,6 +41,11 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 ## Où on en est
 - Voir `docs/plan-mobile.md` : mode bureau fait (`bureau-interactif`), mode téléphone construit (branche `claude/blissful-planck-picobc`, à valider : Lighthouse et axe OK, essai sur vrai téléphone à faire), publication seulement après le « go » de Michaël.
 
+## Qualité (outils de développement uniquement, le site reste sans build)
+- `npm install` une fois, puis `npm run lint` (ESLint), `npm test` (tests unitaires des fonctions pures de `js/utils.js`) et `npm run test:a11y` (axe-core sur tous les écrans, clair et sombre ; nécessite Chromium : `npx playwright install chromium` ou `CHROME_PATH=...`).
+- La logique pure (dates, geste de déverrouillage, libellés) vit dans `js/utils.js`, chargé avant `js/os.js`. Tout nouveau calcul sans DOM va là, avec son test.
+- À lancer avant chaque PR. Pas de CI automatique pour l'instant (étape 2 du plan, seulement si le site grossit).
+
 ## Règles d'accessibilité (WCAG 2.2 AA, non négociables)
 - `<html lang="fr">`, un seul `h1`, hiérarchie de titres sans saut, landmarks (`header`, `nav`, `main`, `footer`).
 - Lien d'évitement « Aller au contenu » en premier élément focusable.
