@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint .",
     "test": "node --test \"tests/unit/*.test.js\"",
-    "test:a11y": "node --test \"tests/a11y/*.test.js\""
+    "test:a11y": "node --test \"tests/a11y/*.test.js\"",
+    "check:site": "bash scripts/assemble-site.sh _site"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
