@@ -15,8 +15,8 @@ module.exports = [
   },
   {
     // Le code passé à page.evaluate() s'exécute dans le navigateur
-    files: ['tests/a11y/*.js'],
-    languageOptions: { globals: { ...globals.node, ...globals.browser, axe: 'readonly' } }
+    files: ['tests/a11y/*.js', 'tests/e2e/*.js', 'tests/helpers/*.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser, axe: 'readonly', Touch: 'readonly', TouchEvent: 'readonly' } }
   },
   {
     files: ['eslint.config.js', 'tests/**/*.js'],

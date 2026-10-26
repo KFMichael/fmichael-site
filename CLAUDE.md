@@ -38,11 +38,18 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Choix par défaut en attendant l'avis de Michaël : fond dégradé abstrait (pas de photo), accent bleu, icônes dessinées maison.
 - Pas de faux horodatages, pas de logos de marques tierces.
 
+## Mode téléphone (conventions des Human Interface Guidelines, version web)
+- Le site reste statique : pas de SwiftUI ni de SF Symbols (licence limitée aux plateformes Apple). On reprend les principes avec nos propres icônes SVG.
+- Couleurs sémantiques (`--bg`, `--bg-grouped`, `--label`, `--label-2`, `--separator`, `--tint`, `--red`, `--green`) définies une seule fois, en clair et en sombre, avec variantes `prefers-contrast: more` et `prefers-reduced-transparency`.
+- Texte en unités relatives ; styles de texte Dynamic Type (`font: -apple-system-*`) quand Safari iOS les gère. Testé à 200 % sans débordement.
+- Pile de navigation (`NavigationStack`) : grand titre qui se réduit, bouton de retour qui porte le titre de l'écran précédent, transition en glissement, retour par Précédent, Échap, glissement depuis le bord gauche. La barre « accueil » (clic ou glissement vers le haut) ferme l'application entière. Travail est la liste → détail ; les autres applications sont à un seul écran.
+- Animations coupées si `prefers-reduced-motion` ; aucun geste obligatoire.
+
 ## Où on en est
 - Voir `docs/plan-mobile.md` : mode bureau fait (`bureau-interactif`), mode téléphone construit (branche `claude/blissful-planck-picobc`, à valider : Lighthouse et axe OK, essai sur vrai téléphone à faire), publication seulement après le « go » de Michaël.
 
 ## Qualité (outils de développement uniquement, le site reste sans build)
-- `npm install` une fois, puis `npm run lint` (ESLint), `npm test` (tests unitaires des fonctions pures de `js/utils.js`) et `npm run test:a11y` (axe-core sur tous les écrans, clair et sombre ; nécessite Chromium : `npx playwright install chromium` ou `CHROME_PATH=...`).
+- `npm install` une fois, puis `npm run lint` (ESLint), `npm test` (tests unitaires des fonctions pures de `js/utils.js`) et `npm run test:a11y` (axe-core sur tous les écrans, clair et sombre) et `npm run test:e2e` (comportement : déverrouillage, pile de navigation, Réglages, bascule bureau/téléphone, animations réduites, texte à 200 %). Les deux derniers demandent Chromium : `npx playwright install chromium` ou `CHROME_PATH=...`.
 - La logique pure (dates, geste de déverrouillage, libellés) vit dans `js/utils.js`, chargé avant `js/os.js`. Tout nouveau calcul sans DOM va là, avec son test.
 - À lancer avant chaque PR. Pas de CI automatique pour l'instant (étape 2 du plan, seulement si le site grossit).
 

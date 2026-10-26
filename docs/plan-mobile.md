@@ -42,6 +42,12 @@ Référence : le mobile de frvky.online (écran verrouillé plein écran, photo 
 - Hobbies : cartes photo avec illustrations provisoires `img/hobby-*.svg` à remplacer par les photos de Michaël.
 - Travail : liste des domaines et nouvelle carte « Site portfolio, Mirielle Rohr ».
 
+## Refonte « Human Interface Guidelines » (web)
+- Couleurs sémantiques, texte relatif et Dynamic Type, mode sombre, contraste renforcé, transparence réduite, animations réduites.
+- Pile de navigation : Travail passe en liste puis détail, avec le titre de l'écran précédent dans le bouton de retour.
+- Dates des expériences ajoutées sur les cartes Travail (reprises de la frise Parcours : 2020–2026, 2022–aujourd'hui, 2017–2019, 2019–2020). La carte portfolio n'a pas de date : à compléter si Michaël la donne.
+- Correctif trouvé par les tests : sur le bureau, après Échap, le focus revient bien sur l'icône du dock.
+
 ## Reste à faire hors code
 - Vérifier que `k@fmichael.cloud` reçoit bien un mail envoyé depuis une autre adresse (Cloudflare → Email Routing → Activity log).
 - Supprimer l'enregistrement DNS `AAAA` vers IONOS s'il est encore là, puis cocher « Enforce HTTPS » dans GitHub Pages.
