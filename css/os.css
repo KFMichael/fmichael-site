@@ -148,7 +148,7 @@ html.os-mode .site-footer { display: none; }
 .light.zoom svg { color: #06280e; }
 .win-title { margin: 0; font-size: 1rem; font-weight: 600; flex: 1; text-align: center; padding-right: 3.2rem; }
 
-.win-body { flex: 1; overflow: auto; padding: 1.25rem 1.5rem 1.5rem; }
+.win-body { flex: 1; overflow: auto; padding: 1.25rem 1.5rem 1.5rem; overflow-wrap: anywhere; hyphens: auto; }
 .win-body:focus-visible { outline-offset: -4px; }
 .win-body .grid { grid-template-columns: 1fr; }
 .win-body .card { padding: 1.1rem; }

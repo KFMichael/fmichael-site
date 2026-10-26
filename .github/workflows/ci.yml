@@ -23,13 +23,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Installer Chromium (3 tentatives, 3 min chacune)
+      - name: Navigateur de test (Chrome déjà installé sur le runner, sinon Chromium Playwright)
         run: |
-          for i in 1 2 3; do
-            timeout 180 npx playwright install --with-deps chromium && exit 0
-            echo "Tentative $i échouée ou bloquée"
-          done
-          exit 1
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+            google-chrome --version
+          else
+            for i in 1 2 3; do
+              timeout 180 npx playwright install --with-deps chromium && exit 0
+              echo "Tentative $i échouée ou bloquée"; sleep 5
+            done
+            exit 1
+          fi
       - name: ESLint
         run: npm run lint
       - name: Tests unitaires
