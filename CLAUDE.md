@@ -13,6 +13,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 ## Structure
 - `index.html` : page unique avec les sections Accueil, Parcours, Travail, Hobbies, Contact.
 - `css/style.css` : styles et variables (tokens dans `:root`).
+- `css/os.css` et `js/os.js` : mode bureau (écran verrouillé + fenêtres + dock), actif seulement si l'écran fait au moins 900×560 px (`html.os-mode`). Le contenu des fenêtres est copié depuis les sections de la page classique : modifier le texte dans `index.html` suffit.
 - `js/main.js` : thème clair/sombre et petites améliorations. Le site doit rester utilisable sans JS.
 - `docs/` : audit d'accessibilité et plan de contenu.
 - `DESIGN.md` : charte visuelle.
@@ -29,6 +30,16 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Répondre en français, ton direct et naturel.
 - Avant de commencer un travail, présenter un plan court et attendre sa validation.
 - Travailler sur une branche ; ne fusionner dans `main` (donc ne publier) qu'après son accord explicite.
+
+## Mode bureau (inspiré de frvky.online, identité propre)
+- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Travail, Disponibilité, Hobbies, Contact) et dock.
+- Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
+- Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.
+- Choix par défaut en attendant l'avis de Michaël : fond dégradé abstrait (pas de photo), accent bleu, icônes dessinées maison.
+- Pas de faux horodatages, pas de logos de marques tierces.
+
+## Où on en est
+- Voir `docs/plan-mobile.md` : mode bureau fait (`bureau-interactif`), mode téléphone construit (branche `claude/blissful-planck-picobc`, à valider : Lighthouse et axe OK, essai sur vrai téléphone à faire), publication seulement après le « go » de Michaël.
 
 ## Règles d'accessibilité (WCAG 2.2 AA, non négociables)
 - `<html lang="fr">`, un seul `h1`, hiérarchie de titres sans saut, landmarks (`header`, `nav`, `main`, `footer`).
