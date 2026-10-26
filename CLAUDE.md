@@ -39,7 +39,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Pas de faux horodatages, pas de logos de marques tierces.
 
 ## Où on en est
-- Voir `docs/plan-mobile.md` : mode bureau fait (branche `bureau-interactif`), mode téléphone à construire, publication seulement après le « go » de Michaël.
+- Voir `docs/plan-mobile.md` : mode bureau fait (`bureau-interactif`), mode téléphone construit (branche `claude/blissful-planck-picobc`, à valider : Lighthouse/axe et essai sur vrai téléphone restent à faire), publication seulement après le « go » de Michaël.
 
 ## Règles d'accessibilité (WCAG 2.2 AA, non négociables)
 - `<html lang="fr">`, un seul `h1`, hiérarchie de titres sans saut, landmarks (`header`, `nav`, `main`, `footer`).
