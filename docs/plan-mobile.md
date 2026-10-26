@@ -35,7 +35,7 @@ Référence : le mobile de frvky.online (écran verrouillé plein écran, photo 
 - Glisser vers le haut (événements `touch`) déverrouille ; « Entrer » reste toujours disponible.
 - Correction au passage : « LUN » et le numéro du jour étaient écrits en dur ; ils suivent maintenant la date réelle.
 - Le bouton « Mode bureau » / « Mode téléphone » du mode classique est maintenant visible sur tous les écrans.
-- Tests faits (Chromium émulé, 320 / 375 / 430 px) : verrouillage, accueil, application, Précédent, Échap, bascule classique, redimensionnement. Pas encore fait : Lighthouse / axe, essai sur un vrai téléphone.
+- Tests faits (Chromium émulé, 320 / 375 / 430 px) : verrouillage, accueil, application, Précédent, Échap, bascule classique, redimensionnement. Lighthouse (mobile et bureau : 100 / 100 / 96 / 100, le 96 vient de l'absence de `favicon.ico`) et axe (0 violation, clair et sombre, tous les écrans) : OK. Pas encore fait : essai sur un vrai téléphone.
 
 ## Reste à faire hors code
 - Vérifier que `k@fmichael.cloud` reçoit bien un mail envoyé depuis une autre adresse (Cloudflare → Email Routing → Activity log).

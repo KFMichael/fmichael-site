@@ -251,7 +251,10 @@ html.phone-mode .dock {
 }
 html.phone-mode .dock .dock-sep, html.phone-mode .dock a.dock-item,
 html.phone-mode .dock .dock-item[data-app="hobbies"] { display: none; }
-html.phone-mode .dock .tip { display: none; }
+html.phone-mode .dock .tip {
+  /* masqué visuellement mais gardé : c'est le nom accessible des boutons du dock */
+  left: 0; bottom: 0; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); transform: none; opacity: 1;
+}
 
 html.phone-mode .win-layer { inset: 0; z-index: 60; pointer-events: none; }
 html.phone-mode .win {
