@@ -1,0 +1,214 @@
+/* Mode bureau : écran verrouillé + bureau à fenêtres.
+   Activé seulement sur grand écran (classe html.os-mode). Sinon, la page classique reste affichée. */
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.mode-switch { display: none; }
+@media (min-width: 900px) and (min-height: 560px) {
+  .mode-switch {
+    display: inline-block; min-height: 44px; padding: 0.5rem 1rem; font: inherit; font-size: 1rem;
+    color: var(--text); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; cursor: pointer;
+  }
+}
+
+#os[hidden], #os [hidden] { display: none !important; }
+
+html.os-mode body { overflow: hidden; background: #07090f; }
+html.os-mode .skip-link,
+html.os-mode .site-header,
+html.os-mode main,
+html.os-mode .site-footer { display: none; }
+
+#os {
+  --bar-bg: rgba(255, 255, 255, 0.88);
+  --win-shadow: 0 18px 50px rgba(15, 23, 42, 0.28);
+  --wp-1: #8db2ff; --wp-2: #ffb8d4; --wp-3: #ffd9a0; --wp-base: #e4eaf7;
+  position: fixed; inset: 0; z-index: 100; overflow: hidden;
+  color: var(--text); font-size: 1rem;
+}
+:root[data-theme="dark"] #os {
+  --bar-bg: rgba(20, 23, 28, 0.88);
+  --win-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  --wp-1: #1f3f94; --wp-2: #5a2a88; --wp-3: #0f6b63; --wp-base: #0b0f1a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #os {
+    --bar-bg: rgba(20, 23, 28, 0.88);
+    --win-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    --wp-1: #1f3f94; --wp-2: #5a2a88; --wp-3: #0f6b63; --wp-base: #0b0f1a;
+  }
+}
+
+#os button { font: inherit; cursor: pointer; }
+#os .mb-btn, #os .win button.light { color: var(--text); }
+#os .lock-btn, #os .notif { color: #fff; }
+#os h1, #os h2, #os h3 { max-width: none; }
+
+/* ---------- Écran verrouillé ---------- */
+.lock {
+  --accent: #8fb0ff;
+  position: absolute; inset: 0; z-index: 50; color: #fff;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 11vh 1.25rem 4vh; text-align: center;
+  background:
+    radial-gradient(55% 45% at 18% 18%, #22345f 0%, transparent 70%),
+    radial-gradient(50% 50% at 82% 72%, #2b1b45 0%, transparent 70%),
+    radial-gradient(40% 40% at 50% 100%, #14323a 0%, transparent 70%),
+    #07090f;
+}
+.lock.leaving { transform: translateY(-100%); transition: transform 450ms ease-in; }
+
+.lock-top { position: absolute; top: 1rem; right: 1.25rem; }
+.lock-btn {
+  min-height: 44px; padding: 0.5rem 1rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.lock-btn:hover { background: rgba(255, 255, 255, 0.22); }
+
+.lock-date { font-size: 1.35rem; margin: 0; opacity: 0.92; }
+.lock-time { font-size: clamp(4.5rem, 11vw, 8rem); font-weight: 600; line-height: 1; margin: 0.2rem 0 0; letter-spacing: -0.02em; }
+.lock-name { margin: 1.25rem 0 0; font-size: 1.15rem; color: rgba(255, 255, 255, 0.85); max-width: none; }
+
+.notifs { list-style: none; margin: auto 0 1.5rem; padding: 0; width: min(26rem, 100%); display: grid; gap: 0.6rem; }
+.notif {
+  display: flex; gap: 0.8rem; align-items: center; width: 100%; text-align: left;
+  padding: 0.8rem 1rem; border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.notif:hover { background: rgba(255, 255, 255, 0.22); }
+.n-icon { flex: none; width: 2.4rem; height: 2.4rem; border-radius: 0.6rem; display: grid; place-items: center; color: #fff; }
+.n-icon svg { width: 1.35rem; height: 1.35rem; }
+.n-body { display: grid; gap: 0.1rem; line-height: 1.35; }
+.n-body strong { font-size: 1rem; }
+.n-body span { font-size: 0.95rem; color: rgba(255, 255, 255, 0.82); }
+
+#os .enter {
+  min-height: 48px; padding: 0.7rem 2.2rem; border-radius: 999px; font-weight: 600; font-size: 1.1rem;
+  background: #fff; color: #07090f; border: 0;
+}
+#os .enter:hover { background: #e8eefc; }
+.lock-hint { margin: 0.6rem 0 0; font-size: 0.95rem; color: rgba(255, 255, 255, 0.75); max-width: none; }
+
+/* ---------- Bureau ---------- */
+.desktop {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60% 60% at 14% 20%, var(--wp-1) 0%, transparent 62%),
+    radial-gradient(50% 60% at 86% 28%, var(--wp-2) 0%, transparent 62%),
+    radial-gradient(60% 60% at 60% 95%, var(--wp-3) 0%, transparent 62%),
+    var(--wp-base);
+}
+
+.menubar {
+  position: absolute; top: 0; left: 0; right: 0; height: 2.25rem; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 0.75rem;
+  background: var(--bar-bg); border-bottom: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 0.95rem;
+}
+.mb-left, .mb-right { display: flex; align-items: center; gap: 0.5rem; }
+.mb-brand { font-weight: 700; }
+.mb-app { color: var(--muted); }
+.mb-btn { min-height: 28px; padding: 0.1rem 0.7rem; border-radius: 0.4rem; background: transparent; border: 1px solid transparent; }
+.mb-btn:hover { background: color-mix(in srgb, var(--text) 10%, transparent); border-color: var(--border); }
+.mb-clock { color: var(--muted); font-variant-numeric: tabular-nums; padding-left: 0.5rem; }
+
+.win-layer { position: absolute; inset: 2.25rem 0 0 0; }
+
+/* ---------- Fenêtres ---------- */
+.win {
+  position: absolute; display: flex; flex-direction: column; overflow: hidden;
+  width: min(42rem, 92vw); height: min(34rem, calc(100vh - 9rem));
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 0.8rem; box-shadow: var(--win-shadow);
+}
+.win:focus { outline: none; }
+.win.active { border-color: var(--accent); }
+.win.max { left: 0 !important; top: 0 !important; width: 100% !important; height: calc(100% - 5.5rem) !important; border-radius: 0; }
+
+.titlebar {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.75rem; min-height: 2.6rem;
+  background: color-mix(in srgb, var(--bg) 85%, var(--surface)); border-bottom: 1px solid var(--border);
+  cursor: grab; user-select: none; touch-action: none;
+}
+.titlebar:active { cursor: grabbing; }
+.lights { display: flex; gap: 0.3rem; }
+.light {
+  position: relative; width: 24px; height: 24px; padding: 0; border: 0; background: transparent;
+  display: grid; place-items: center; border-radius: 50%;
+}
+.light::before {
+  content: ""; width: 14px; height: 14px; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.light.close::before { background: #ff5f57; }
+.light.zoom::before { background: #28c840; }
+.light svg { position: absolute; width: 10px; height: 10px; color: #3a0b08; }
+.light.zoom svg { color: #06280e; }
+.win-title { margin: 0; font-size: 1rem; font-weight: 600; flex: 1; text-align: center; padding-right: 3.2rem; }
+
+.win-body { flex: 1; overflow: auto; padding: 1.25rem 1.5rem 1.5rem; }
+.win-body:focus-visible { outline-offset: -4px; }
+.win-body .grid { grid-template-columns: 1fr; }
+.win-body .card { padding: 1.1rem; }
+.win-body .timeline { margin-bottom: 1.75rem; }
+.win-body .grid-info { grid-template-columns: 1fr; }
+
+.cal { width: 100%; border-collapse: collapse; text-align: center; margin: 0.5rem 0 1.25rem; }
+.cal caption { font-weight: 700; font-size: 1.15rem; text-transform: capitalize; padding-bottom: 0.5rem; text-align: left; }
+.cal th { color: var(--muted); font-weight: 600; font-size: 0.9rem; padding: 0.3rem; }
+.cal td { padding: 0.4rem; }
+.cal td[aria-current="date"] span {
+  display: inline-grid; place-items: center; min-width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--accent); color: var(--accent-contrast); font-weight: 700;
+}
+
+/* ---------- Dock ---------- */
+.dock {
+  position: absolute; left: 50%; bottom: 0.9rem; transform: translateX(-50%); z-index: 40;
+  display: flex; gap: 0.5rem; padding: 0.5rem 0.7rem; border-radius: 1.2rem;
+  background: var(--bar-bg); border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.dock-item {
+  position: relative; display: grid; place-items: center; width: 3.4rem; height: 3.4rem; padding: 0;
+  border: 0; background: transparent; border-radius: 0.9rem; text-decoration: none; color: #fff;
+}
+.dock-item .ico { width: 3.1rem; height: 3.1rem; border-radius: 0.8rem; display: grid; place-items: center; font-weight: 700; font-size: 1.15rem; color: #fff; }
+.dock-item .ico svg { width: 1.6rem; height: 1.6rem; }
+.dock-item[aria-expanded="true"]::after {
+  content: ""; position: absolute; bottom: -0.2rem; left: 50%; width: 5px; height: 5px; margin-left: -2.5px;
+  border-radius: 50%; background: var(--text);
+}
+.dock-sep { width: 1px; background: var(--border); margin: 0.4rem 0.1rem; }
+.tip {
+  position: absolute; bottom: calc(100% + 0.6rem); left: 50%; transform: translateX(-50%);
+  padding: 0.3rem 0.65rem; border-radius: 0.5rem; font-size: 0.9rem; white-space: nowrap; pointer-events: none;
+  background: #16181a; color: #fff; opacity: 0;
+}
+.dock-item:hover .tip, .dock-item:focus-visible .tip { opacity: 1; }
+.dock-item:focus-visible { outline-offset: 2px; }
+
+.i-notes { background: linear-gradient(160deg, #f6c64f, #e8a01c); }
+.i-work { background: linear-gradient(160deg, #3b82f6, #1d4ed8); }
+.i-cal { background: #fff; color: #b3261e !important; border: 1px solid #c8cbd0; flex-direction: column; line-height: 1; }
+.i-ball { background: linear-gradient(160deg, #84cc16, #4d7c0f); }
+.i-mail { background: linear-gradient(160deg, #38bdf8, #0369a1); }
+.i-in { background: #0a66c2; }
+.i-git { background: #24292f; }
+.n-icon.i-notes, .n-icon.i-work, .n-icon.i-ball { color: #fff; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .dock-item { transition: transform 120ms; }
+  .dock-item:hover, .dock-item:focus-visible { transform: translateY(-4px) scale(1.08); }
+  .tip { transition: opacity 120ms; }
+  .win { animation: win-in 160ms ease-out; }
+  @keyframes win-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lock.leaving { transition: none; }
+}
