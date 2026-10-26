@@ -20,9 +20,9 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 
 ## Décisions validées
 - Sections : Accueil, Parcours (frise, formation, certifications, langues), Travail (4 études de cas : contexte, rôle, résultat), Hobbies (tennis, football, jeux de société, voyage), Contact.
-- Les noms d'entreprises (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog) et les liens des 4 boutiques Shopify sont publiables.
+- Les noms d'entreprises (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog) et les liens des 4 boutiques Shopify sont publiables, ainsi que le site portfolio de Mirielle Rohr (lien vers l'aperçu `mirielle-r-portfolio.pages.dev`, à remplacer par `www.miriellerohr.com` une fois le domaine branché).
 - Contact public : `k@fmichael.cloud`, LinkedIn `linkedin.com/in/kangahmichael`, GitHub `KFMichael`. Jamais de téléphone ni d'adresse postale.
-- Pas de CV en téléchargement ni de photo pour l'instant (à rouvrir si Michaël le demande).
+- Pas de CV en téléchargement ni de photo de Michaël. Hobbies : cartes photo, illustrations provisoires dans `img/hobby-*.svg` en attendant ses photos (`img/`, WebP, alt utile).
 - Source du contenu : le CV « PO technique senior » de Michaël. Ne pas inventer de chiffres : n'utiliser que ceux du CV.
 - Site en français uniquement.
 

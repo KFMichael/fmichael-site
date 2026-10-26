@@ -20,6 +20,7 @@
   var home = document.getElementById('home');
   var dock = os.querySelector('.dock');
   var toOs = document.getElementById('to-os');
+  var homeInd = document.getElementById('home-ind');
   var opener = null;
   var pushed = false;
 
@@ -30,7 +31,8 @@
     travail: { title: 'Travail', src: '#travail' },
     dispo: { title: 'Disponibilité', build: buildDispo },
     hobbies: { title: 'Hobbies', src: '#hobbies' },
-    contact: { title: 'Contact', src: '#contact' }
+    contact: { title: 'Contact', src: '#contact' },
+    reglages: { title: 'Réglages', build: buildReglages }
   };
 
   function store(key, value) {
@@ -47,25 +49,98 @@
     document.getElementById('lock-date').textContent = date;
     document.getElementById('lock-time').textContent = time;
     document.getElementById('mb-clock').textContent = short + ' ' + time;
+    document.getElementById('mb-time').textContent = time;
+    var month = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(now);
+    Array.prototype.forEach.call(os.querySelectorAll('.w-day'), function (el) { el.textContent = now.getDate(); });
+    Array.prototype.forEach.call(os.querySelectorAll('.w-dow'), function (el) { el.textContent = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now); });
+    Array.prototype.forEach.call(os.querySelectorAll('.w-month'), function (el) { el.textContent = month; });
     var dow = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(now).replace('.', '').slice(0, 3).toUpperCase();
     Array.prototype.forEach.call(os.querySelectorAll('.cal-num'), function (el) { el.textContent = now.getDate(); });
     Array.prototype.forEach.call(os.querySelectorAll('.cal-dow'), function (el) { el.textContent = dow; });
   }
 
-  /* ---------- Écran d'accueil (téléphone) : copie des icônes du dock ---------- */
+  /* ---------- Écran d'accueil (téléphone) : widgets + copie des icônes du dock ---------- */
+  var SHORT_LABEL = { dispo: 'Dispo' };
+  var ICON_GEAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg>';
+
+  function homeItem(app, icoClass, iconHtml, label, short) {
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dock-item home-item';
+    b.setAttribute('data-app', app);
+    b.setAttribute('aria-haspopup', 'dialog');
+    b.setAttribute('aria-expanded', 'false');
+    b.innerHTML = '<span class="ico ' + icoClass + '" aria-hidden="true">' + iconHtml + '</span>' + labelHtml(label, short);
+    li.appendChild(b);
+    return li;
+  }
+
+  function labelHtml(label, short) {
+    if (!short) return '<span class="home-label">' + label + '</span>';
+    return '<span class="home-label" aria-hidden="true">' + short + '</span><span class="visually-hidden">' + label + '</span>';
+  }
+
   function buildHome() {
+    var widgets = document.createElement('div');
+    widgets.className = 'widgets';
+    widgets.innerHTML =
+      '<button type="button" class="widget" data-app="dispo" aria-haspopup="dialog" aria-expanded="false">' +
+        '<span class="w-dow"></span><span class="w-day"></span>' +
+        '<span class="w-note">En mission, indisponible</span>' +
+      '</button>' +
+      '<button type="button" class="widget widget-cv" data-app="parcours" aria-haspopup="dialog" aria-expanded="false">' +
+        '<span class="w-big">11 ans</span><span class="w-note">entre métier et tech, dont 6 chez Louis Vuitton</span>' +
+      '</button>';
+    home.insertBefore(widgets, home.firstChild);
+
     var list = home.querySelector('ul');
     Array.prototype.forEach.call(dock.querySelectorAll('.dock-item'), function (item) {
       var copy = item.cloneNode(true);
       copy.classList.add('home-item');
       Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function (el) { el.removeAttribute('id'); });
       var tip = copy.querySelector('.tip');
-      tip.className = 'home-label';
-      tip.innerHTML = tip.textContent.replace(' (nouvel onglet)', '<span class="visually-hidden"> (nouvel onglet)</span>');
+      var id = copy.getAttribute('data-app');
+      if (id && SHORT_LABEL[id]) {
+        tip.className = 'home-label';
+        tip.setAttribute('aria-hidden', 'true');
+        tip.textContent = SHORT_LABEL[id];
+        var full = document.createElement('span');
+        full.className = 'visually-hidden';
+        full.textContent = item.querySelector('.tip').textContent;
+        copy.appendChild(full);
+      } else {
+        tip.className = 'home-label';
+        tip.innerHTML = tip.textContent.replace(' (nouvel onglet)', '<span class="visually-hidden"> (nouvel onglet)</span>');
+      }
       var li = document.createElement('li');
       li.appendChild(copy);
       list.appendChild(li);
     });
+    list.appendChild(homeItem('reglages', 'i-set', ICON_GEAR, 'Réglages'));
+  }
+
+  /* ---------- Réglages (téléphone) ---------- */
+  function buildReglages(body) {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    body.innerHTML =
+      '<h3 class="ios-head">Affichage</h3>' +
+      '<ul class="ios-list"><li><button type="button" class="ios-row" id="rg-theme" role="switch" aria-checked="' + dark + '">' +
+        '<span>Thème sombre</span><span class="ios-switch" aria-hidden="true"></span></button></li></ul>' +
+      '<h3 class="ios-head">Navigation</h3>' +
+      '<ul class="ios-list">' +
+        '<li><button type="button" class="ios-row" id="rg-classic"><span>Version classique</span><span class="ios-chev" aria-hidden="true">›</span></button></li>' +
+        '<li><button type="button" class="ios-row" id="rg-lock"><span>Verrouiller l\'écran</span><span class="ios-chev" aria-hidden="true">›</span></button></li>' +
+      '</ul>' +
+      '<p class="ios-foot">La version classique est mémorisée sur cet appareil. Le bouton « Mode téléphone », en haut de la page classique, la réactive.</p>';
+    var sw = body.querySelector('#rg-theme');
+    sw.addEventListener('click', function () {
+      document.getElementById('theme-toggle').click();
+      syncTheme();
+      sw.setAttribute('aria-checked', root.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
+    });
+    body.querySelector('#rg-classic').addEventListener('click', function () { store('mode', 'classic'); disable(true); });
+    body.querySelector('#rg-lock').addEventListener('click', function () { closeAll(); showLock(); });
   }
 
   function appButtons(id) { return os.querySelectorAll('button[data-app="' + id + '"]'); }
@@ -86,29 +161,10 @@
   }
 
   function buildDispo(body) {
-    var d = new Date();
-    var y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
-    var offset = (new Date(y, m, 1).getDay() + 6) % 7;
-    var days = new Date(y, m + 1, 0).getDate();
-    var heads = [['lun.', 'lundi'], ['mar.', 'mardi'], ['mer.', 'mercredi'], ['jeu.', 'jeudi'], ['ven.', 'vendredi'], ['sam.', 'samedi'], ['dim.', 'dimanche']];
-    var cap = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(d);
-    var html = '<p><strong>Disponible en freelance</strong>, en hybride (2 à 4 jours par semaine sur site) et à l\'international.</p>';
-    html += '<table class="cal"><caption>' + cap + '</caption><thead><tr>';
-    heads.forEach(function (h) { html += '<th scope="col"><abbr title="' + h[1] + '">' + h[0] + '</abbr></th>'; });
-    html += '</tr></thead><tbody>';
-    var n = 1 - offset;
-    while (n <= days) {
-      html += '<tr>';
-      for (var i = 0; i < 7; i++, n++) {
-        if (n < 1 || n > days) html += '<td></td>';
-        else if (n === today) html += '<td aria-current="date"><span><span class="visually-hidden">Aujourd\'hui, </span>' + n + '</span></td>';
-        else html += '<td>' + n + '</td>';
-      }
-      html += '</tr>';
-    }
-    html += '</tbody></table>';
-    html += '<p><a class="button" href="mailto:k@fmichael.cloud?subject=Prise%20de%20contact">Prendre contact</a></p>';
-    body.innerHTML = html;
+    body.innerHTML =
+      '<p><strong>En mission, indisponible pour le moment.</strong></p>' +
+      '<p>Tu peux quand même m\'écrire pour une future collaboration.</p>' +
+      '<p><a class="button" href="mailto:k@fmichael.cloud?subject=Prise%20de%20contact">Prendre contact</a></p>';
   }
 
   /* ---------- Fenêtres ---------- */
@@ -168,6 +224,12 @@
     Array.prototype.forEach.call(appButtons(id), function (b) { b.setAttribute('aria-expanded', 'true'); });
 
     if (phone) {
+      var from = opener && opener.isConnected ? opener.getBoundingClientRect() : null;
+      win.style.setProperty('--ox', (from ? from.left + from.width / 2 : window.innerWidth / 2) + 'px');
+      win.style.setProperty('--oy', (from ? from.top + from.height / 2 : window.innerHeight / 2) + 'px');
+      body.insertAdjacentHTML('afterbegin', '<p class="large-title" aria-hidden="true">' + app.title + '</p>');
+      body.addEventListener('scroll', function () { win.classList.toggle('scrolled', body.scrollTop > 24); }, { passive: true });
+      homeInd.hidden = false;
       win.querySelector('.back').addEventListener('click', retour);
       win.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') { e.stopPropagation(); retour(); }
@@ -202,6 +264,7 @@
     delete openWins[id];
     Array.prototype.forEach.call(appButtons(id), function (b) { b.setAttribute('aria-expanded', 'false'); });
     if (isPhone()) {
+      homeInd.hidden = true;
       setInert(false);
       if (returnFocus) {
         var target = opener && opener.isConnected ? opener : home.querySelector('[data-app="' + id + '"]');
@@ -294,7 +357,7 @@
     Array.prototype.forEach.call(os.querySelectorAll('.notif'), function (b) {
       b.addEventListener('click', function () { opener = null; unlock(b.getAttribute('data-app')); });
     });
-    Array.prototype.forEach.call(os.querySelectorAll('.dock-item[data-app]'), function (b) {
+    Array.prototype.forEach.call(desktop.querySelectorAll('button[data-app]'), function (b) {
       b.addEventListener('click', function () {
         var id = b.getAttribute('data-app');
         opener = b;
@@ -302,6 +365,8 @@
         else openApp(id);
       });
     });
+
+    homeInd.addEventListener('click', retour);
 
     // Glisser vers le haut pour déverrouiller (jamais obligatoire : « Entrer » reste là)
     var sx, sy;

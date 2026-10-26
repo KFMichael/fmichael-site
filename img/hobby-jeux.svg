@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#9a3412"/></linearGradient></defs>
+  <rect width="1200" height="900" fill="url(#g)"/>
+  <g fill="#fff" fill-opacity=".1">
+    <rect x="80" y="90" width="150" height="150" rx="24"/><rect x="280" y="90" width="150" height="150" rx="24"/><rect x="770" y="660" width="150" height="150" rx="24"/><rect x="970" y="660" width="150" height="150" rx="24"/>
+  </g>
+  <g transform="translate(470 470) rotate(-14)">
+    <rect x="-130" y="-130" width="260" height="260" rx="44" fill="#fff"/>
+    <g fill="#111827"><circle cx="-62" cy="-62" r="24"/><circle cx="62" cy="-62" r="24"/><circle cy="0" r="24"/><circle cx="-62" cy="62" r="24"/><circle cx="62" cy="62" r="24"/></g>
+  </g>
+  <g transform="translate(760 400) rotate(18)">
+    <rect x="-110" y="-110" width="220" height="220" rx="38" fill="#fde68a"/>
+    <g fill="#7c2d12"><circle cx="-52" cy="-52" r="21"/><circle cx="52" cy="52" r="21"/><circle cy="0" r="21"/></g>
+  </g>
+  <g transform="translate(680 640)">
+    <circle cy="-70" r="34" fill="#38bdf8"/><path d="M-52 40C-52 -20 52 -20 52 40Z" fill="#38bdf8"/><rect x="-62" y="38" width="124" height="22" rx="11" fill="#0284c7"/>
+  </g>
+  <g transform="translate(880 620)">
+    <circle cy="-70" r="34" fill="#f472b6"/><path d="M-52 40C-52 -20 52 -20 52 40Z" fill="#f472b6"/><rect x="-62" y="38" width="124" height="22" rx="11" fill="#be185d"/>
+  </g>
+</svg>
