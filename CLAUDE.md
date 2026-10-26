@@ -5,7 +5,9 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 
 ## Stack
 - HTML / CSS / JS statiques, sans framework ni étape de build.
-- Hébergement : GitHub Pages (workflow dans `.github/workflows/deploy.yml`), domaine `fmichael.cloud`.
+- Hébergement : GitHub Pages (workflow dans `.github/workflows/deploy.yml`, déclenché sur `main`), dépôt public `KFMichael/fmichael-site`.
+- Domaine `fmichael.cloud` géré chez Cloudflare : 4 enregistrements `A` + `CNAME www` vers `kfmichael.github.io`, en « DNS only » (pas de proxy).
+- E-mail : `contact@fmichael.cloud` redirigé par Cloudflare Email Routing vers la boîte personnelle de Michaël (jamais écrite dans le dépôt, qui est public).
 - Pas de dépendance externe tant que ce n'est pas nécessaire (pas de CDN, pas de tracker).
 
 ## Structure
@@ -14,6 +16,19 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - `js/main.js` : thème clair/sombre et petites améliorations. Le site doit rester utilisable sans JS.
 - `docs/` : audit d'accessibilité et plan de contenu.
 - `DESIGN.md` : charte visuelle.
+
+## Décisions validées
+- Sections : Accueil, Parcours (frise, formation, certifications, langues), Travail (4 études de cas : contexte, rôle, résultat), Hobbies (tennis, football, jeux de société, voyage), Contact.
+- Les noms d'entreprises (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog) et les liens des 4 boutiques Shopify sont publiables.
+- Contact public : `contact@fmichael.cloud`, LinkedIn `linkedin.com/in/kangahmichael`, GitHub `KFMichael`. Jamais de téléphone ni d'adresse postale.
+- Pas de CV en téléchargement ni de photo pour l'instant (à rouvrir si Michaël le demande).
+- Source du contenu : le CV « PO technique senior » de Michaël. Ne pas inventer de chiffres : n'utiliser que ceux du CV.
+- Site en français uniquement.
+
+## Façon de travailler avec Michaël
+- Répondre en français, ton direct et naturel.
+- Avant de commencer un travail, présenter un plan court et attendre sa validation.
+- Travailler sur une branche ; ne fusionner dans `main` (donc ne publier) qu'après son accord explicite.
 
 ## Règles d'accessibilité (WCAG 2.2 AA, non négociables)
 - `<html lang="fr">`, un seul `h1`, hiérarchie de titres sans saut, landmarks (`header`, `nav`, `main`, `footer`).
