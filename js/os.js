@@ -36,27 +36,21 @@
   };
 
   function store(key, value) {
-    try { if (value === undefined) return localStorage.getItem(key); localStorage.setItem(key, value); } catch (e) { /* ignoré */ }
+    try { if (value === undefined) return localStorage.getItem(key); localStorage.setItem(key, value); } catch { /* ignoré */ }
     return null;
   }
 
   /* ---------- Horloge ---------- */
   function tick() {
-    var now = new Date();
-    var date = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
-    var time = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(now);
-    var short = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(now);
-    document.getElementById('lock-date').textContent = date;
-    document.getElementById('lock-time').textContent = time;
-    document.getElementById('mb-clock').textContent = short + ' ' + time;
-    document.getElementById('mb-time').textContent = time;
-    var month = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(now);
-    Array.prototype.forEach.call(os.querySelectorAll('.w-day'), function (el) { el.textContent = now.getDate(); });
-    Array.prototype.forEach.call(os.querySelectorAll('.w-dow'), function (el) { el.textContent = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now); });
-    Array.prototype.forEach.call(os.querySelectorAll('.w-month'), function (el) { el.textContent = month; });
-    var dow = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(now).replace('.', '').slice(0, 3).toUpperCase();
-    Array.prototype.forEach.call(os.querySelectorAll('.cal-num'), function (el) { el.textContent = now.getDate(); });
-    Array.prototype.forEach.call(os.querySelectorAll('.cal-dow'), function (el) { el.textContent = dow; });
+    var c = OsUtils.clockParts(new Date());
+    document.getElementById('lock-date').textContent = c.date;
+    document.getElementById('lock-time').textContent = c.time;
+    document.getElementById('mb-clock').textContent = c.short + ' ' + c.time;
+    document.getElementById('mb-time').textContent = c.time;
+    var fill = { '.w-day': c.day, '.w-dow': c.weekday, '.w-month': c.month, '.cal-num': c.day, '.cal-dow': c.dow };
+    Object.keys(fill).forEach(function (selector) {
+      Array.prototype.forEach.call(os.querySelectorAll(selector), function (el) { el.textContent = fill[selector]; });
+    });
   }
 
   /* ---------- Écran d'accueil (téléphone) : widgets + copie des icônes du dock ---------- */
@@ -71,14 +65,9 @@
     b.setAttribute('data-app', app);
     b.setAttribute('aria-haspopup', 'dialog');
     b.setAttribute('aria-expanded', 'false');
-    b.innerHTML = '<span class="ico ' + icoClass + '" aria-hidden="true">' + iconHtml + '</span>' + labelHtml(label, short);
+    b.innerHTML = '<span class="ico ' + icoClass + '" aria-hidden="true">' + iconHtml + '</span>' + OsUtils.labelHtml(label, short);
     li.appendChild(b);
     return li;
-  }
-
-  function labelHtml(label, short) {
-    if (!short) return '<span class="home-label">' + label + '</span>';
-    return '<span class="home-label" aria-hidden="true">' + short + '</span><span class="visually-hidden">' + label + '</span>';
   }
 
   function buildHome() {
@@ -378,7 +367,7 @@
       var dx = e.changedTouches[0].clientX - sx;
       var dy = e.changedTouches[0].clientY - sy;
       sy = undefined;
-      if (dy < -80 && Math.abs(dx) < Math.abs(dy) / 2) { opener = null; unlock(); }
+      if (OsUtils.isSwipeUp(dx, dy)) { opener = null; unlock(); }
     }, { passive: true });
     Array.prototype.forEach.call(os.querySelectorAll('[data-action="classic"]'), function (b) {
       b.addEventListener('click', function () { store('mode', 'classic'); disable(true); });

@@ -8,11 +8,11 @@
   }
 
   function read() {
-    try { return localStorage.getItem('theme'); } catch (e) { return null; }
+    try { return localStorage.getItem('theme'); } catch { return null; }
   }
 
   function save(value) {
-    try { localStorage.setItem('theme', value); } catch (e) { /* stockage indisponible */ }
+    try { localStorage.setItem('theme', value); } catch { /* stockage indisponible */ }
   }
 
   function apply(theme) {
