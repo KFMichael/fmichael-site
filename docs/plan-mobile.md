@@ -53,6 +53,9 @@ Référence : le mobile de frvky.online (écran verrouillé plein écran, photo 
 - « Travail » devient **Réalisations** : contexte, rôle, résultat, avec la période. Les détails qui n'étaient que dans la frise (équipe de 9, mentorat, 12 développeurs et 4 QA, SAP Hybris, louisvuitton.com et DSI) y sont repris.
 - Les identifiants internes (`#travail`, `data-app="travail"`) ne changent pas : les liens existants restent valables.
 
-## Reste à faire hors code
+## Reste à faire
+Le suivi se fait dans les issues GitHub du dépôt (plus dans ce fichier).
+
+## Ancien reste à faire hors code
 - Vérifier que `k@fmichael.cloud` reçoit bien un mail envoyé depuis une autre adresse (Cloudflare → Email Routing → Activity log).
 - Supprimer l'enregistrement DNS `AAAA` vers IONOS s'il est encore là, puis cocher « Enforce HTTPS » dans GitHub Pages.

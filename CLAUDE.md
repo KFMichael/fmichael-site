@@ -47,12 +47,10 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Animations coupées si `prefers-reduced-motion` ; aucun geste obligatoire.
 
 ## Où on en est
-- Voir `docs/plan-mobile.md` : mode bureau fait (`bureau-interactif`), mode téléphone construit (branche `claude/blissful-planck-picobc`, à valider : Lighthouse et axe OK, essai sur vrai téléphone à faire), publication seulement après le « go » de Michaël.
-
-## Qualité (outils de développement uniquement, le site reste sans build)
-- `npm install` une fois, puis `npm run lint` (ESLint), `npm test` (tests unitaires des fonctions pures de `js/utils.js`) et `npm run test:a11y` (axe-core sur tous les écrans, clair et sombre) et `npm run test:e2e` (comportement : déverrouillage, pile de navigation, Réglages, bascule bureau/téléphone, animations réduites, texte à 200 %). Les deux derniers demandent Chromium : `npx playwright install chromium` ou `CHROME_PATH=...`.
-- La logique pure (dates, geste de déverrouillage, libellés) vit dans `js/utils.js`, chargé avant `js/os.js`. Tout nouveau calcul sans DOM va là, avec son test.
-- La CI GitHub (`.github/workflows/ci.yml`) lance ces contrôles sur chaque PR et sur `main`. Pour bloquer la fusion quand ils échouent : réglages GitHub, Branches, règle sur `main`, « Require status checks » (check `checks`). Réglage à faire par Michaël.
+- **Backlog = les issues GitHub** de `KFMichael/fmichael-site` (étiquettes `contenu`, `design`, `technique`, `hors-code`). Voir aussi `docs/plan-mobile.md` (historique du mode téléphone).
+- En ligne : mode bureau, mode téléphone (conventions Human Interface Guidelines en version web, pile de navigation), version classique, Parcours (CV) et Réalisations (études de cas), statut « En mission », hobbies en cartes (illustrations provisoires), favicon, mesure d'audience Cloudflare, CI (lint, tests unitaires, axe, comportement, assemblage du site), déploiement du site seul.
+- En attente de validation : design éditorial option A (angles droits, titres à empattements, filets fins ; issue « Design éditorial »). Ne pas commencer sans plan validé par Michaël.
+- Publication : fusion dans `main` seulement après le « go » de Michaël.
 
 ## Règles d'accessibilité (WCAG 2.2 AA, non négociables)
 - `<html lang="fr">`, un seul `h1`, hiérarchie de titres sans saut, landmarks (`header`, `nav`, `main`, `footer`).
