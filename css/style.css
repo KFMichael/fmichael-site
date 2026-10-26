@@ -129,3 +129,6 @@ a { color: var(--accent); text-underline-offset: 0.2em; }
 .grid-info li { margin-bottom: 0.4rem; }
 .card .links { margin-top: 1rem; }
 .note { color: var(--muted); font-size: 1rem; margin-top: 1.5rem; }
+
+.tags-big { margin-top: 0.5rem; }
+.tags-big li { font-size: 1rem; padding: 0.35rem 1rem; color: var(--text); }
