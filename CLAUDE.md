@@ -7,11 +7,11 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - HTML / CSS / JS statiques, sans framework ni étape de build.
 - Hébergement : GitHub Pages (workflow dans `.github/workflows/deploy.yml`, déclenché sur `main`), dépôt public `KFMichael/fmichael-site`.
 - Domaine `fmichael.cloud` géré chez Cloudflare : 4 enregistrements `A` + `CNAME www` vers `kfmichael.github.io`, en « DNS only » (pas de proxy).
-- E-mail : `contact@fmichael.cloud` redirigé par Cloudflare Email Routing vers la boîte personnelle de Michaël (jamais écrite dans le dépôt, qui est public).
+- E-mail : `k@fmichael.cloud` redirigé par Cloudflare Email Routing vers la boîte personnelle de Michaël (jamais écrite dans le dépôt, qui est public).
 - Pas de dépendance externe tant que ce n'est pas nécessaire (pas de CDN, pas de tracker).
 
 ## Structure
-- `index.html` : page unique avec les sections Accueil, Activités, Projets, Hobbies, Contact.
+- `index.html` : page unique avec les sections Accueil, Parcours, Travail, Hobbies, Contact.
 - `css/style.css` : styles et variables (tokens dans `:root`).
 - `js/main.js` : thème clair/sombre et petites améliorations. Le site doit rester utilisable sans JS.
 - `docs/` : audit d'accessibilité et plan de contenu.
@@ -20,7 +20,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 ## Décisions validées
 - Sections : Accueil, Parcours (frise, formation, certifications, langues), Travail (4 études de cas : contexte, rôle, résultat), Hobbies (tennis, football, jeux de société, voyage), Contact.
 - Les noms d'entreprises (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog) et les liens des 4 boutiques Shopify sont publiables.
-- Contact public : `contact@fmichael.cloud`, LinkedIn `linkedin.com/in/kangahmichael`, GitHub `KFMichael`. Jamais de téléphone ni d'adresse postale.
+- Contact public : `k@fmichael.cloud`, LinkedIn `linkedin.com/in/kangahmichael`, GitHub `KFMichael`. Jamais de téléphone ni d'adresse postale.
 - Pas de CV en téléchargement ni de photo pour l'instant (à rouvrir si Michaël le demande).
 - Source du contenu : le CV « PO technique senior » de Michaël. Ne pas inventer de chiffres : n'utiliser que ceux du CV.
 - Site en français uniquement.
