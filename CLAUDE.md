@@ -6,6 +6,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 ## Stack
 - HTML / CSS / JS statiques, sans framework ni étape de build.
 - Hébergement : GitHub Pages (workflow dans `.github/workflows/deploy.yml`, déclenché sur `main`), dépôt public `KFMichael/fmichael-site`.
+- Seul le site est publié : `scripts/assemble-site.sh` copie `index.html`, `favicon.svg`, `CNAME`, `css/`, `js/` et `img/` dans `_site/` (et vérifie que chaque ressource référencée y est). **Tout nouveau fichier ou dossier nécessaire au site doit être ajouté à ce script**, sinon il n'est pas publié. `npm run check:site` le teste en local.
 - Domaine `fmichael.cloud` géré chez Cloudflare : 4 enregistrements `A` + `CNAME www` vers `kfmichael.github.io`, en « DNS only » (pas de proxy).
 - E-mail : `k@fmichael.cloud` redirigé par Cloudflare Email Routing vers la boîte personnelle de Michaël (jamais écrite dans le dépôt, qui est public).
 - Pas de dépendance externe tant que ce n'est pas nécessaire (pas de CDN, pas de tracker).
