@@ -6,6 +6,7 @@
     "lint": "eslint .",
     "test": "node --test \"tests/unit/*.test.js\"",
     "test:a11y": "node --test \"tests/a11y/*.test.js\"",
+    "test:e2e": "node --test \"tests/e2e/*.test.js\"",
     "check:site": "bash scripts/assemble-site.sh _site"
   },
   "devDependencies": {

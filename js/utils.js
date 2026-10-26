@@ -20,9 +20,22 @@
     };
   }
 
-  // Glisser vers le haut pour déverrouiller : assez long et plutôt vertical
-  function isSwipeUp(dx, dy) {
-    return dy < -80 && Math.abs(dx) < Math.abs(dy) / 2;
+  // Glisser vers le haut (déverrouiller, revenir à l'accueil) : assez long et plutôt vertical
+  function isSwipeUp(dx, dy, min) {
+    return dy < -(min || 80) && Math.abs(dx) < Math.abs(dy) / 2;
+  }
+
+  // Retour par un glissement depuis le bord gauche de l'écran, comme dans une pile de navigation iOS
+  function isEdgeSwipeBack(startX, dx, dy) {
+    return startX <= 24 && dx > 70 && Math.abs(dy) < dx / 2;
+  }
+
+  // Sous-titre d'une ligne de liste : première phrase du contexte, sans le mot « Contexte. », tronquée
+  function rowSummary(text) {
+    var t = String(text).replace(/^\s*Contexte\.\s*/, '').trim();
+    var m = t.match(/^.*?\.(?=\s|$)/); // fin de phrase = point suivi d'une espace (pas le point d'un nom de domaine)
+    var s = m ? m[0] : t;
+    return s.length > 90 ? s.slice(0, 87).trimEnd() + '…' : s;
   }
 
   // Libellé d'icône : version courte visible, nom complet pour les lecteurs d'écran
@@ -31,5 +44,5 @@
     return '<span class="home-label" aria-hidden="true">' + short + '</span><span class="visually-hidden">' + label + '</span>';
   }
 
-  return { clockParts: clockParts, isSwipeUp: isSwipeUp, labelHtml: labelHtml };
+  return { clockParts: clockParts, isSwipeUp: isSwipeUp, isEdgeSwipeBack: isEdgeSwipeBack, rowSummary: rowSummary, labelHtml: labelHtml };
 });

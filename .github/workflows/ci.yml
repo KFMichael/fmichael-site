@@ -15,6 +15,7 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,12 +23,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Installer Chromium (3 tentatives, 3 min chacune)
+        run: |
+          for i in 1 2 3; do
+            timeout 180 npx playwright install --with-deps chromium && exit 0
+            echo "Tentative $i échouée ou bloquée"
+          done
+          exit 1
       - name: ESLint
         run: npm run lint
       - name: Tests unitaires
         run: npm test
       - name: Accessibilité (axe)
         run: npm run test:a11y
+      - name: Comportement (Playwright)
+        run: npm run test:e2e
       - name: Assemblage du site publié
         run: npm run check:site

@@ -22,13 +22,13 @@
   var toOs = document.getElementById('to-os');
   var homeInd = document.getElementById('home-ind');
   var opener = null;
-  var pushed = false;
+  var histDepth = 0;
 
   function isPhone() { return root.classList.contains('phone-mode'); }
 
   var APPS = {
     parcours: { title: 'Parcours', src: '#parcours' },
-    travail: { title: 'Travail', src: '#travail' },
+    travail: { title: 'Réalisations', build: buildTravail },
     dispo: { title: 'Disponibilité', build: buildDispo },
     hobbies: { title: 'Hobbies', src: '#hobbies' },
     contact: { title: 'Contact', src: '#contact' },
@@ -109,6 +109,42 @@
     list.appendChild(homeItem('reglages', 'i-set', ICON_GEAR, 'Réglages'));
   }
 
+  /* ---------- Réalisations (id interne « travail ») : liste, puis détail empilé (téléphone) ---------- */
+  function buildTravail(body, nav) {
+    if (!nav) { cloneSection('#travail', body); return; }
+    var sec = document.querySelector('#travail');
+    if (!sec) return;
+    ['p', 'ul.tags'].forEach(function (sel) {
+      var el = sec.querySelector(':scope > ' + sel);
+      if (el) body.appendChild(el.cloneNode(true));
+    });
+    var list = document.createElement('ul');
+    list.className = 'ios-list';
+    Array.prototype.forEach.call(sec.querySelectorAll('article.card'), function (card) {
+      var title = card.querySelector('h3').textContent.trim();
+      var when = card.querySelector('.when');
+      var context = card.querySelector('p:not(.when)');
+      var li = document.createElement('li');
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'ios-row ios-row-nav';
+      row.innerHTML = '<span class="ios-row-text"><span class="ios-row-title"></span><span class="ios-row-sub"></span></span><span class="ios-chev" aria-hidden="true">' + ICON_CHEV + '</span>';
+      row.querySelector('.ios-row-title').textContent = title;
+      var summary = OsUtils.rowSummary(context ? context.textContent : '');
+      row.querySelector('.ios-row-sub').textContent = (when ? when.textContent.trim() + ' · ' : '') + summary;
+      row.addEventListener('click', function () {
+        var detail = document.createElement('div');
+        Array.prototype.forEach.call(card.children, function (child) {
+          if (child.tagName !== 'H3') detail.appendChild(child.cloneNode(true));
+        });
+        nav.push(title, detail);
+      });
+      li.appendChild(row);
+      list.appendChild(li);
+    });
+    body.appendChild(list);
+  }
+
   /* ---------- Réglages (téléphone) ---------- */
   function buildReglages(body) {
     var dark = root.getAttribute('data-theme') === 'dark';
@@ -118,8 +154,8 @@
         '<span>Thème sombre</span><span class="ios-switch" aria-hidden="true"></span></button></li></ul>' +
       '<h3 class="ios-head">Navigation</h3>' +
       '<ul class="ios-list">' +
-        '<li><button type="button" class="ios-row" id="rg-classic"><span>Version classique</span><span class="ios-chev" aria-hidden="true">›</span></button></li>' +
-        '<li><button type="button" class="ios-row" id="rg-lock"><span>Verrouiller l\'écran</span><span class="ios-chev" aria-hidden="true">›</span></button></li>' +
+        '<li><button type="button" class="ios-row" id="rg-classic"><span>Version classique</span><span class="ios-chev" aria-hidden="true">' + ICON_CHEV + '</span></button></li>' +
+        '<li><button type="button" class="ios-row" id="rg-lock"><span>Verrouiller l\'écran</span><span class="ios-chev" aria-hidden="true">' + ICON_CHEV + '</span></button></li>' +
       '</ul>' +
       '<p class="ios-foot">La version classique est mémorisée sur cet appareil. Le bouton « Mode téléphone », en haut de la page classique, la réactive.</p>';
     var sw = body.querySelector('#rg-theme');
@@ -159,9 +195,10 @@
   /* ---------- Fenêtres ---------- */
   var ICON_CLOSE = '<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
   var ICON_BACK = '<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M6.5 1.5L3 5l3.5 3.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_CHEV = '<svg viewBox="0 0 10 16" aria-hidden="true" focusable="false"><path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var ICON_ZOOM ='<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
 
-  function dockButton(id) { return os.querySelector('.dock-item[data-app="' + id + '"]'); }
+  function dockButton(id) { return dock.querySelector('.dock-item[data-app="' + id + '"]'); }
 
   function setActive(win) {
     Object.keys(openWins).forEach(function (k) { openWins[k].classList.remove('active'); });
@@ -193,7 +230,7 @@
     }
 
     var controls = phone
-      ? '<button type="button" class="back">' + ICON_BACK + '<span>Retour</span></button>'
+      ? '<button type="button" class="back">' + ICON_BACK + '<span class="back-label">Accueil</span></button>'
       : '<div class="lights">' +
           '<button type="button" class="light close" aria-label="Fermer la fenêtre ' + app.title + '">' + ICON_CLOSE + '</button>' +
           '<button type="button" class="light zoom" aria-label="Agrandir la fenêtre ' + app.title + '" aria-pressed="false">' + ICON_ZOOM + '</button>' +
@@ -206,7 +243,17 @@
       '<div class="win-body" tabindex="0" role="region" aria-labelledby="wt-' + id + '"></div>';
 
     var body = win.querySelector('.win-body');
-    if (app.build) app.build(body); else cloneSection(app.src, body);
+    var nav = null;
+    if (phone) {
+      // Pile de navigation : les écrans empilés vivent dans .screens, la barre du haut est partagée
+      var screens = document.createElement('div');
+      screens.className = 'screens';
+      win.insertBefore(screens, body);
+      screens.appendChild(body);
+      win._screens = [{ title: app.title, body: body }];
+      nav = { push: function (title, node) { pushScreen(win, title, node); } };
+    }
+    if (app.build) app.build(body, nav); else cloneSection(app.src, body);
 
     layer.appendChild(win);
     openWins[id] = win;
@@ -217,15 +264,27 @@
       win.style.setProperty('--ox', (from ? from.left + from.width / 2 : window.innerWidth / 2) + 'px');
       win.style.setProperty('--oy', (from ? from.top + from.height / 2 : window.innerHeight / 2) + 'px');
       body.insertAdjacentHTML('afterbegin', '<p class="large-title" aria-hidden="true">' + app.title + '</p>');
-      body.addEventListener('scroll', function () { win.classList.toggle('scrolled', body.scrollTop > 24); }, { passive: true });
+      watchScroll(win, body);
+      syncBar(win);
       homeInd.hidden = false;
       win.querySelector('.back').addEventListener('click', retour);
       win.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') { e.stopPropagation(); retour(); }
       });
+      // Retour par glissement depuis le bord gauche
+      var tx, ty;
+      win.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+      win.addEventListener('touchend', function (e) {
+        if (tx === undefined) return;
+        var x0 = tx;
+        var dx = e.changedTouches[0].clientX - tx;
+        var dy = e.changedTouches[0].clientY - ty;
+        tx = undefined;
+        if (OsUtils.isEdgeSwipeBack(x0, dx, dy)) retour();
+      }, { passive: true });
       setInert(true);
-      history.pushState({ app: id }, '');
-      pushed = true;
+      history.pushState({ app: id, depth: 1 }, '');
+      histDepth = 1;
     } else {
       win.querySelector('.close').addEventListener('click', function () { closeApp(id, true); });
       var zoom = win.querySelector('.zoom');
@@ -246,11 +305,22 @@
     win.focus();
   }
 
-  function closeApp(id, returnFocus) {
+  // Retire un élément après son animation de sortie (tout de suite si les animations sont réduites)
+  function removeAnimated(el, cls) {
+    if (reduced.matches) { el.remove(); return; }
+    el.inert = true;
+    el.classList.add(cls);
+    var done = function (e) { if (!e || e.target === el) el.remove(); };
+    el.addEventListener('animationend', done);
+    setTimeout(done, 450);
+  }
+
+  function closeApp(id, returnFocus, immediate) {
     var win = openWins[id];
     if (!win) return;
-    win.remove();
     delete openWins[id];
+    if (isPhone() && !immediate) removeAnimated(win, 'closing');
+    else win.remove();
     Array.prototype.forEach.call(appButtons(id), function (b) { b.setAttribute('aria-expanded', 'false'); });
     if (isPhone()) {
       homeInd.hidden = true;
@@ -267,20 +337,81 @@
     setActive(ids.length ? openWins[ids[ids.length - 1]] : null);
   }
 
-  /* Téléphone : « Retour » = bouton Précédent du navigateur (History API) */
+  /* ---------- Pile de navigation (téléphone) ---------- */
+  function topScreen(win) { return win._screens[win._screens.length - 1]; }
+
+  function watchScroll(win, body) {
+    body.addEventListener('scroll', function () {
+      if (topScreen(win).body === body) win.classList.toggle('scrolled', body.scrollTop > 24);
+    }, { passive: true });
+  }
+
+  // Barre du haut : le bouton de retour porte le titre de l'écran précédent, le titre central celui de l'écran courant
+  function syncBar(win) {
+    var n = win._screens.length;
+    var label = n > 1 ? win._screens[n - 2].title : 'Accueil';
+    win.querySelector('.back-label').textContent = label;
+    win.querySelector('.back').setAttribute('aria-label', 'Retour à ' + (n > 1 ? label : "l'accueil"));
+    win.querySelector('.win-title').textContent = topScreen(win).title;
+  }
+
+  function pushScreen(win, title, node) {
+    var body = document.createElement('div');
+    body.className = 'win-body pushed';
+    body.tabIndex = 0;
+    body.setAttribute('role', 'region');
+    body.setAttribute('aria-label', title);
+    body.insertAdjacentHTML('afterbegin', '<p class="large-title" aria-hidden="true"></p>');
+    body.firstChild.textContent = title;
+    body.appendChild(node);
+    watchScroll(win, body);
+    var below = topScreen(win);
+    below.body.inert = true;
+    below.body.classList.add('behind');
+    win._screens.push({ title: title, body: body, opener: document.activeElement });
+    win.querySelector('.screens').appendChild(body);
+    syncBar(win);
+    win.classList.remove('scrolled');
+    history.pushState({ app: win.getAttribute('data-app'), depth: win._screens.length }, '');
+    histDepth++;
+    body.focus();
+  }
+
+  function popScreen(win) {
+    var top = win._screens.pop();
+    var below = topScreen(win);
+    below.body.inert = false;
+    below.body.classList.remove('behind');
+    removeAnimated(top.body, 'leaving');
+    syncBar(win);
+    win.classList.toggle('scrolled', below.body.scrollTop > 24);
+    if (top.opener && top.opener.isConnected) top.opener.focus();
+  }
+
+  /* « Retour » = bouton Précédent du navigateur (History API) : dépile un écran, ou ferme l'application */
   function retour() {
-    if (pushed) history.back();
+    if (histDepth) history.back();
     else Object.keys(openWins).forEach(function (id) { closeApp(id, true); });
   }
 
+  // Barre « accueil » : ferme l'application en entier, quelle que soit la profondeur de la pile
+  function goHome() {
+    Object.keys(openWins).forEach(function (id) { closeApp(id, true); });
+    if (histDepth) { var n = histDepth; histDepth = 0; history.go(-n); }
+  }
+
   function closeAll() {
-    Object.keys(openWins).forEach(function (id) { closeApp(id, false); });
-    if (pushed) { pushed = false; history.back(); }
+    Object.keys(openWins).forEach(function (id) { closeApp(id, false, true); });
+    if (histDepth) { var n = histDepth; histDepth = 0; history.go(-n); }
   }
 
   window.addEventListener('popstate', function () {
-    pushed = false;
-    if (isPhone()) Object.keys(openWins).forEach(function (id) { closeApp(id, true); });
+    var ids = Object.keys(openWins);
+    if (!ids.length) { histDepth = 0; return; }
+    if (!isPhone()) return;
+    var win = openWins[ids[0]];
+    if (win._screens && win._screens.length > 1) { popScreen(win); histDepth = Math.max(0, histDepth - 1); }
+    else { histDepth = 0; closeApp(ids[0], true); }
   });
 
   function enableDrag(win) {
@@ -355,7 +486,16 @@
       });
     });
 
-    homeInd.addEventListener('click', retour);
+    homeInd.addEventListener('click', goHome);
+    var ix, iy;
+    homeInd.addEventListener('touchstart', function (e) { ix = e.touches[0].clientX; iy = e.touches[0].clientY; }, { passive: true });
+    homeInd.addEventListener('touchend', function (e) {
+      if (iy === undefined) return;
+      var dx = e.changedTouches[0].clientX - ix;
+      var dy = e.changedTouches[0].clientY - iy;
+      iy = undefined;
+      if (OsUtils.isSwipeUp(dx, dy, 40)) goHome();
+    }, { passive: true });
 
     // Glisser vers le haut pour déverrouiller (jamais obligatoire : « Entrer » reste là)
     var sx, sy;
