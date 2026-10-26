@@ -185,3 +185,41 @@ test('taille de texte à 200 % : pas de défilement horizontal sur l\'accueil ni
   assert.equal(await overflow(), false, 'liste Réalisations');
   await ctx.close();
 });
+
+test('À propos : le texte d\'accueil est repris dans une application', async () => {
+  const { ctx, page } = await open();
+  await unlock(page);
+  await page.tap('#home [data-app=apropos]');
+  assert.match(await page.locator('.win-body .about-title').innerText(), /besoin métier/i);
+  assert.equal(await page.locator('.back-label').innerText(), 'Accueil');
+  await ctx.close();
+});
+
+test('design éditorial : angles droits, ni flou ni dégradé, titres à empattements', async () => {
+  const { ctx, page } = await open();
+  const style = (sel, props) => page.evaluate(([s, p]) => {
+    const el = document.querySelector(s);
+    const cs = getComputedStyle(el);
+    return Object.fromEntries(p.map((k) => [k, cs[k]]));
+  }, [sel, props]);
+  // verrouillage
+  for (const sel of ['.enter', '.notif', '.lock-btn']) {
+    assert.equal((await style(sel, ['borderRadius'])).borderRadius, '0px', sel + ' : angles droits');
+  }
+  assert.equal((await style('.lock', ['backdropFilter'])).backdropFilter, 'none');
+  assert.match((await style('.lock-time', ['fontFamily'])).fontFamily, /Georgia|Palatino|Iowan|serif/i, 'heure en serif');
+  await unlock(page);
+  // accueil
+  for (const sel of ['.home-item .ico', '.widget', '.dock', '.dock-item .ico']) {
+    assert.equal((await style(sel, ['borderRadius'])).borderRadius, '0px', sel + ' : angles droits');
+    assert.equal((await style(sel, ['backdropFilter'])).backdropFilter, 'none', sel + ' : pas de flou');
+  }
+  assert.equal((await style('.home', ['backgroundImage'])).backgroundImage, 'none');
+  // application
+  await page.tap('#home [data-app=reglages]');
+  for (const sel of ['.ios-list', '.ios-switch', '.back']) {
+    assert.equal((await style(sel, ['borderRadius'])).borderRadius, '0px', sel + ' : angles droits');
+  }
+  assert.match((await style('.large-title', ['fontFamily'])).fontFamily, /Georgia|Palatino|Iowan|serif/i, 'grand titre en serif');
+  await ctx.close();
+});

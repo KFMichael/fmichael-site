@@ -51,3 +51,31 @@ test('version classique : mémorisée, et la page classique n\'est pas masquée'
   assert.equal(await classes(page), '', 'le choix survit au rechargement');
   await ctx.close();
 });
+
+test('design éditorial (bureau) : fenêtres, dock et boutons à angles droits, sans flou', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('.dock [data-app=parcours]');
+  const radii = await page.evaluate(() => ['.win', '.titlebar', '.light', '.dock', '.dock-item .ico', '.menubar']
+    .map((s) => [s, getComputedStyle(document.querySelector(s)).borderRadius, getComputedStyle(document.querySelector(s)).backdropFilter]));
+  for (const [selector, radius, blur] of radii) {
+    assert.equal(radius, '0px', selector + ' : angles droits');
+    assert.equal(blur, 'none', selector + ' : pas de flou');
+  }
+  await ctx.close();
+});
+
+test('page classique : angles droits (boutons, étiquettes, cartes)', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.evaluate(() => localStorage.setItem('mode', 'classic'));
+  await page.reload();
+  const radii = await page.evaluate(() => ['.button', '.theme-toggle', '.tags li', '.card', '.hobby']
+    .map((s) => [s, getComputedStyle(document.querySelector(s)).borderRadius]));
+  for (const [selector, radius] of radii) assert.equal(radius, '0px', selector + ' : angles droits');
+  await ctx.close();
+});

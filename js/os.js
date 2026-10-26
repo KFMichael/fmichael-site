@@ -31,6 +31,7 @@
     travail: { title: 'Réalisations', build: buildTravail },
     dispo: { title: 'Disponibilité', build: buildDispo },
     hobbies: { title: 'Hobbies', src: '#hobbies' },
+    apropos: { title: 'À propos', build: buildApropos },
     contact: { title: 'Contact', src: '#contact' },
     reglages: { title: 'Réglages', build: buildReglages }
   };
@@ -107,6 +108,16 @@
       list.appendChild(li);
     });
     list.appendChild(homeItem('reglages', 'i-set', ICON_GEAR, 'Réglages'));
+  }
+
+  /* ---------- À propos : texte d'accueil de la page classique (un seul texte à maintenir) ---------- */
+  function buildApropos(body) {
+    var sec = document.querySelector('#accueil');
+    if (!sec) return;
+    body.innerHTML = '<p class="eyebrow"></p><h3 class="about-title"></h3><p class="lead"></p>';
+    body.querySelector('.eyebrow').textContent = sec.querySelector('.eyebrow').textContent;
+    body.querySelector('.about-title').textContent = sec.querySelector('h1').textContent;
+    body.querySelector('.lead').textContent = sec.querySelector('.lead').textContent;
   }
 
   /* ---------- Réalisations (id interne « travail ») : liste, puis détail empilé (téléphone) ---------- */

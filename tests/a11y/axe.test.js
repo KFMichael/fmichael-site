@@ -33,7 +33,7 @@ for (const scheme of ['light', 'dark']) {
     await page.tap('#enter');
     await page.waitForTimeout(700);
     assert.deepEqual(await violations(page), [], 'accueil');
-    for (const app of ['parcours', 'travail', 'dispo', 'hobbies', 'contact', 'reglages']) {
+    for (const app of ['parcours', 'travail', 'dispo', 'hobbies', 'apropos', 'contact', 'reglages']) {
       await page.tap('#home [data-app=' + app + ']');
       await page.waitForTimeout(450);
       assert.deepEqual(await violations(page), [], 'application ' + app);

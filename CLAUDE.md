@@ -33,15 +33,20 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Travailler sur une branche ; ne fusionner dans `main` (donc ne publier) qu'après son accord explicite.
 
 ## Mode bureau (inspiré de frvky.online, identité propre)
-- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Réalisations, Disponibilité, Hobbies, Contact) et dock.
+- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Réalisations, Disponibilité, Hobbies, À propos, Contact) et dock.
 - Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
 - Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.
-- Choix par défaut en attendant l'avis de Michaël : fond dégradé abstrait (pas de photo), accent bleu, icônes dessinées maison.
+- Choix retenus : fond uni (pas de photo), accent vermillon, icônes dessinées maison.
 - Pas de faux horodatages, pas de logos de marques tierces.
+
+## Design éditorial (décision de Michaël, option A)
+- Angles droits (`--radius: 0`), filets fins, aplats, titres à empattements du système, papier crème / anthracite. **Interdits** : bords arrondis, pilules, dégradés, flou ou verre, ombres douces (seules les ombres franches décalées des fenêtres du bureau sont permises). Des tests le vérifient (`tests/e2e`).
+- Pas de photo de fond : fond uni. Michaël ajoutera lui-même ses photos (hobbies : changer le `src` des `img/hobby-*.svg` ; réalisations : `<img class="case-media">`).
+- Pas de logos de marques tierces : LinkedIn et GitHub sont des liens texte dans Contact.
 
 ## Mode téléphone (conventions des Human Interface Guidelines, version web)
 - Le site reste statique : pas de SwiftUI ni de SF Symbols (licence limitée aux plateformes Apple). On reprend les principes avec nos propres icônes SVG.
-- Couleurs sémantiques (`--bg`, `--bg-grouped`, `--label`, `--label-2`, `--separator`, `--tint`, `--red`, `--green`) définies une seule fois, en clair et en sombre, avec variantes `prefers-contrast: more` et `prefers-reduced-transparency`.
+- Couleurs sémantiques : les jetons de `css/style.css` (`--bg`, `--surface`, `--text`, `--muted`, `--accent`, `--border`), définis une seule fois en clair et en sombre.
 - Texte en unités relatives ; styles de texte Dynamic Type (`font: -apple-system-*`) quand Safari iOS les gère. Testé à 200 % sans débordement.
 - Pile de navigation (`NavigationStack`) : grand titre qui se réduit, bouton de retour qui porte le titre de l'écran précédent, transition en glissement, retour par Précédent, Échap, glissement depuis le bord gauche. La barre « accueil » (clic ou glissement vers le haut) ferme l'application entière. Réalisations est la liste → détail ; les autres applications sont à un seul écran.
 - Animations coupées si `prefers-reduced-motion` ; aucun geste obligatoire.
