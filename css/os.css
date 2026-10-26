@@ -155,15 +155,6 @@ html.os-mode .site-footer { display: none; }
 .win-body .timeline { margin-bottom: 1.75rem; }
 .win-body .grid-info { grid-template-columns: 1fr; }
 
-.cal { width: 100%; border-collapse: collapse; text-align: center; margin: 0.5rem 0 1.25rem; }
-.cal caption { font-weight: 700; font-size: 1.15rem; text-transform: capitalize; padding-bottom: 0.5rem; text-align: left; }
-.cal th { color: var(--muted); font-weight: 600; font-size: 0.9rem; padding: 0.3rem; }
-.cal td { padding: 0.4rem; }
-.cal td[aria-current="date"] span {
-  display: inline-grid; place-items: center; min-width: 2rem; height: 2rem; border-radius: 50%;
-  background: var(--accent); color: var(--accent-contrast); font-weight: 700;
-}
-
 /* ---------- Dock ---------- */
 .dock {
   position: absolute; left: 50%; bottom: 0.9rem; transform: translateX(-50%); z-index: 40;

@@ -87,7 +87,7 @@
     widgets.innerHTML =
       '<button type="button" class="widget" data-app="dispo" aria-haspopup="dialog" aria-expanded="false">' +
         '<span class="w-dow"></span><span class="w-day"></span>' +
-        '<span class="w-note">Disponible en freelance</span>' +
+        '<span class="w-note">En mission, indisponible</span>' +
       '</button>' +
       '<button type="button" class="widget widget-cv" data-app="parcours" aria-haspopup="dialog" aria-expanded="false">' +
         '<span class="w-big">11 ans</span><span class="w-note">entre métier et tech, dont 6 chez Louis Vuitton</span>' +
@@ -161,29 +161,10 @@
   }
 
   function buildDispo(body) {
-    var d = new Date();
-    var y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
-    var offset = (new Date(y, m, 1).getDay() + 6) % 7;
-    var days = new Date(y, m + 1, 0).getDate();
-    var heads = [['lun.', 'lundi'], ['mar.', 'mardi'], ['mer.', 'mercredi'], ['jeu.', 'jeudi'], ['ven.', 'vendredi'], ['sam.', 'samedi'], ['dim.', 'dimanche']];
-    var cap = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(d);
-    var html = '<p><strong>Disponible en freelance</strong>, en hybride (2 à 4 jours par semaine sur site) et à l\'international.</p>';
-    html += '<table class="cal"><caption>' + cap + '</caption><thead><tr>';
-    heads.forEach(function (h) { html += '<th scope="col"><abbr title="' + h[1] + '">' + h[0] + '</abbr></th>'; });
-    html += '</tr></thead><tbody>';
-    var n = 1 - offset;
-    while (n <= days) {
-      html += '<tr>';
-      for (var i = 0; i < 7; i++, n++) {
-        if (n < 1 || n > days) html += '<td></td>';
-        else if (n === today) html += '<td aria-current="date"><span><span class="visually-hidden">Aujourd\'hui, </span>' + n + '</span></td>';
-        else html += '<td>' + n + '</td>';
-      }
-      html += '</tr>';
-    }
-    html += '</tbody></table>';
-    html += '<p><a class="button" href="mailto:k@fmichael.cloud?subject=Prise%20de%20contact">Prendre contact</a></p>';
-    body.innerHTML = html;
+    body.innerHTML =
+      '<p><strong>En mission, indisponible pour le moment.</strong></p>' +
+      '<p>Tu peux quand même m\'écrire pour une future collaboration.</p>' +
+      '<p><a class="button" href="mailto:k@fmichael.cloud?subject=Prise%20de%20contact">Prendre contact</a></p>';
   }
 
   /* ---------- Fenêtres ---------- */

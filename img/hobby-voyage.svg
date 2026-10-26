@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset=".55" stop-color="#3b82f6"/><stop offset="1" stop-color="#fdba74"/></linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#sky)"/>
+  <circle cx="880" cy="470" r="95" fill="#fde68a"/>
+  <g fill="#fff" fill-opacity=".85"><ellipse cx="250" cy="250" rx="130" ry="36"/><ellipse cx="320" cy="225" rx="80" ry="34"/><ellipse cx="960" cy="200" rx="110" ry="30"/><ellipse cx="1020" cy="180" rx="60" ry="26"/></g>
+  <path d="M120 600C300 480 520 360 820 330" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="6" stroke-dasharray="4 22" stroke-linecap="round"/>
+  <g transform="translate(870 318) rotate(-12)" fill="#fff">
+    <path d="M-80 -8C-30 -26 60 -26 100 0C60 26 -30 26 -80 8Z"/><path d="M-20 -6L-70 -70L-40 -70L30 -8Z"/><path d="M-20 6L-70 70L-40 70L30 8Z"/><path d="M-80 -8L-100 -34L-82 -34L-62 -8Z"/>
+  </g>
+  <path d="M-20 900V640L170 500L300 600L520 420L760 640L930 540L1220 760V900Z" fill="#1e293b"/>
+  <path d="M-20 900V740L220 650L420 730L660 640L900 740L1220 680V900Z" fill="#0f172a"/>
+  <path d="M520 420L470 480L520 470L550 500L580 465Z" fill="#fff" fill-opacity=".9"/>
+</svg>

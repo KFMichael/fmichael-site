@@ -132,3 +132,20 @@ a { color: var(--accent); text-underline-offset: 0.2em; }
 
 .tags-big { margin-top: 0.5rem; }
 .tags-big li { font-size: 1rem; padding: 0.35rem 1rem; color: var(--text); }
+
+/* Hobbies : cartes photo. Illustrations provisoires dans img/hobby-*.svg ; pour mettre une photo, changer le src
+   (ex. img/tennis.webp, 1200 px de large) et remplacer alt="" par une description utile de la photo. */
+.hobbies { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.hobby { position: relative; overflow: hidden; border-radius: var(--radius); aspect-ratio: 4 / 5; background: #1f2937; isolation: isolate; }
+.hobby-media { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hobby::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 55%); pointer-events: none; }
+.hobby h3 { position: absolute; z-index: 2; left: 1rem; right: 1rem; bottom: 0.9rem; margin: 0; color: #fff; font-size: 1.25rem; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); }
+@media (min-width: 700px) {
+  .hobbies { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .hobby { aspect-ratio: 4 / 3; }
+  .hobby-voyage { grid-column: span 3; aspect-ratio: 21 / 9; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hobby-media { transition: transform 400ms ease; }
+  .hobby:hover .hobby-media { transform: scale(1.05); }
+}

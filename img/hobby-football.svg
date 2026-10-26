@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+  <rect width="1200" height="900" fill="#15803d"/>
+  <g fill="#16a34a"><rect x="0" y="0" width="200" height="900"/><rect x="400" y="0" width="200" height="900"/><rect x="800" y="0" width="200" height="900"/></g>
+  <g fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="10">
+    <path d="M600 0V900"/><circle cx="600" cy="450" r="170"/><rect x="-60" y="250" width="240" height="400"/><rect x="1020" y="250" width="240" height="400"/>
+  </g>
+  <ellipse cx="600" cy="690" rx="190" ry="26" fill="#000" opacity=".28"/>
+  <g transform="translate(600 450)">
+    <circle r="210" fill="#fff"/>
+    <g fill="#111827">
+      <path d="M0 -70L67 -22L41 57H-41L-67 -22Z"/>
+      <path d="M0 -210L40 -150L0 -118L-40 -150Z"/>
+      <path d="M178 -60L205 -12L170 24L130 0L138 -48Z"/>
+      <path d="M-178 -60L-205 -12L-170 24L-130 0L-138 -48Z"/>
+      <path d="M110 150L70 190L30 175L35 128L82 118Z"/>
+      <path d="M-110 150L-70 190L-30 175L-35 128L-82 118Z"/>
+    </g>
+    <path d="M0 -118V-70M67 -22L130 0M41 57L70 118M-41 57L-70 118M-67 -22L-130 0" stroke="#111827" stroke-width="7" fill="none"/>
+    <circle r="210" fill="none" stroke="#cbd5e1" stroke-width="6"/>
+  </g>
+</svg>
