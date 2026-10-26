@@ -178,11 +178,22 @@ test('taille de texte à 200 % : pas de défilement horizontal sur l\'accueil ni
   const { ctx, page } = await open({ viewport: { width: 320, height: 640 } });
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
   await unlock(page);
-  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth
-    || [...document.querySelectorAll('#home, .win, .screens .win-body')].some((el) => el.scrollWidth > el.clientWidth + 1));
-  assert.equal(await overflow(), false, 'accueil');
+  // Liste des éléments qui dépassent de l'écran (vide = tout tient), avec leurs largeurs pour diagnostiquer
+  const overflow = () => page.evaluate(() => {
+    const width = window.innerWidth;
+    const bad = [];
+    if (document.documentElement.scrollWidth > width) bad.push('page ' + document.documentElement.scrollWidth + ' > ' + width);
+    for (const el of document.querySelectorAll('#home, .win, .screens .win-body, .screens .win-body *')) {
+      if (el.closest('.visually-hidden') || el.classList.contains('visually-hidden')) continue;
+      const box = el.getBoundingClientRect();
+      if (el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0) bad.push(el.tagName + '.' + el.className + ' scroll ' + el.scrollWidth + ' > ' + el.clientWidth + ' : ' + el.textContent.trim().slice(0, 40));
+      else if (box.width > 0 && box.right > width + 1) bad.push(el.tagName + '.' + el.className + ' dépasse à ' + Math.round(box.right) + ' : ' + el.textContent.trim().slice(0, 40));
+    }
+    return bad;
+  });
+  assert.deepEqual(await overflow(), [], 'accueil');
   await page.tap('#home [data-app=travail]');
-  assert.equal(await overflow(), false, 'liste Réalisations');
+  assert.deepEqual(await overflow(), [], 'liste Réalisations');
   await ctx.close();
 });
 
