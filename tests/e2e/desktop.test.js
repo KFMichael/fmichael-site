@@ -649,3 +649,39 @@ test('fenêtres : redimensionner au clavier (Alt + Maj + flèches), poignées ca
   assert.equal(await page.locator('.win .rs-se').isVisible(), false, 'pas de poignée quand la fenêtre est agrandie');
   await ctx.close();
 });
+
+test('bureau : le widget Réalisations reprend exactement les 4 boutiques de la section Réalisations', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  const widget = page.locator('.desk-widget[aria-label="Réalisations"]');
+  assert.equal(await widget.isVisible(), true);
+  const links = await widget.locator('a').evaluateAll((as) => as.map((a) => [a.href, a.target, a.rel, a.textContent.includes('nouvel onglet')]));
+  assert.equal(links.length, 4);
+  assert.ok(links.every((l) => l[1] === '_blank' && l[2] === 'noopener' && l[3] === true), 'nouvel onglet, noopener, annoncé');
+  const published = await page.evaluate(() => {
+    const card = [...document.querySelectorAll('#travail article')].find((a) => a.querySelector('h3').textContent.trim() === '4 boutiques Shopify');
+    return [...card.querySelectorAll('.links a')].map((a) => a.href);
+  });
+  assert.deepEqual(links.map((l) => l[0]), published, 'mêmes adresses que dans la section, dans le même ordre');
+  await ctx.close();
+});
+
+test('bureau : sur un écran bas, le widget Réalisations laisse la place aux deux autres', async () => {
+  const ctx = await site.browser.newContext({ viewport: { width: 1280, height: 700 } });
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  assert.equal(await page.locator('.desk-widget[aria-label="Réalisations"]').isVisible(), false);
+  assert.equal(await page.locator('.desk-widget[aria-label="Vibecoding"]').isVisible(), true);
+  assert.equal(await page.locator('.desk-widget[aria-label="Disponibilité"]').isVisible(), true);
+  await ctx.close();
+});
+
+test('bureau : les trois widgets tiennent à l\'écran sur 1440 × 900', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  const box = await page.locator('.desk-widgets').boundingBox();
+  assert.ok(box.y + box.height <= 900, 'la colonne de widgets ne déborde pas de l\'écran (' + Math.round(box.y + box.height) + ' px)');
+  await ctx.close();
+});
