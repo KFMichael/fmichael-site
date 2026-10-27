@@ -96,3 +96,38 @@ test('contact (page classique) : mission longue, projets courts et lien de rende
   assert.deepEqual([href, target, rel], ['https://calendly.com/kangahmichael/new-meeting', '_blank', 'noopener']);
   await ctx.close();
 });
+
+test('bureau : le widget Vibecoding est en verre, avec les deux projets, et il passe derrière les fenêtres', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  const w = page.locator('.desk-widget');
+  assert.equal(await w.isVisible(), true);
+  assert.notEqual(await w.evaluate((el) => getComputedStyle(el).backdropFilter), 'none', 'flou du verre');
+  const links = await w.locator('a').evaluateAll((as) => as.map((a) => [a.href, a.target, a.rel]));
+  assert.deepEqual(links, [
+    ['https://echecs.fmichael.cloud/', '_blank', 'noopener'],
+    ['https://monpatrimoine.fmichael.cloud/', '_blank', 'noopener'],
+  ]);
+  await page.click('.dock [data-app=hobbies]');
+  const winOnTop = await page.evaluate(() => {
+    const r = document.querySelector('.win').getBoundingClientRect();
+    const w2 = document.querySelector('.desk-widget').getBoundingClientRect();
+    const x = Math.max(r.left, w2.left) + 5, y = Math.max(r.top, w2.top) + 5;
+    const overlap = r.left < w2.right && r.right > w2.left && r.top < w2.bottom && r.bottom > w2.top;
+    return !overlap || !!document.elementFromPoint(x, y).closest('.win');
+  });
+  assert.equal(winOnTop, true, 'une fenêtre ouverte recouvre le widget');
+  await ctx.close();
+});
+
+test('hobbies : la carte Vibecoding est la première (page classique)', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  assert.equal(await page.locator('.hobbies > li').first().getAttribute('class'), 'hobby hobby-code');
+  await ctx.close();
+});
