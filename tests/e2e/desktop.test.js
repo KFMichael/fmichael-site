@@ -51,3 +51,18 @@ test('version classique : mémorisée, et la page classique n\'est pas masquée'
   assert.equal(await classes(page), '', 'le choix survit au rechargement');
   await ctx.close();
 });
+
+test('glass (bureau) : les fenêtres sont en verre dépoli', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('.dock [data-app=parcours]');
+  const blur = await page.evaluate(() => getComputedStyle(document.querySelector('.win')).backdropFilter);
+  assert.notEqual(blur, 'none', 'flou du verre');
+  const bg = await page.evaluate(() => getComputedStyle(document.querySelector('.win')).backgroundColor);
+  const alpha = Number((bg.match(/\/\s*([\d.]+)\)$/) || bg.match(/,\s*([\d.]+)\)$/) || [])[1]);
+  assert.ok(alpha > 0 && alpha < 1, 'fond semi-transparent, pas opaque : ' + bg);
+  await ctx.close();
+});
