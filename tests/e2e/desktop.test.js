@@ -186,3 +186,80 @@ test('404 : message clair, retour à l\'accueil, non indexée', async () => {
   assert.notEqual(await page.$eval('main', (el) => getComputedStyle(el).backdropFilter), 'none', 'verre dépoli');
   await ctx.close();
 });
+
+test('notifications : elles arrivent une à une, une seule fois, en moins de 5 s, sans bouger la mise en page', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  const box = () => page.locator('.notifs').boundingBox();
+  const before = await box();
+  const timings = await page.evaluate(() => document.getAnimations()
+    .filter((a) => a.effect.target.closest && a.effect.target.closest('.notifs'))
+    .map((a) => { const t = a.effect.getComputedTiming(); return [t.delay, t.iterations, t.endTime]; }));
+  assert.deepEqual(timings.map((t) => t[0]), [600, 1700, 2800], 'une notification toutes les 1,1 s');
+  assert.ok(timings.every((t) => t[1] === 1), 'une seule fois, pas de boucle');
+  assert.ok(Math.max(...timings.map((t) => t[2])) < 5000, 'moins de 5 s au total');
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+  const after = await box();
+  assert.deepEqual([after.y, after.height], [before.y, before.height], 'la liste ne bouge pas quand les notifications arrivent');
+  await ctx.close();
+});
+
+test('notifications : tout est visible tout de suite avec mouvement réduit', async () => {
+  const ctx = await site.browser.newContext({ ...DESKTOP, reducedMotion: 'reduce' });
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  const n = await page.evaluate(() => document.getAnimations().filter((a) => a.effect.target.closest && a.effect.target.closest('.notifs')).length);
+  assert.equal(n, 0);
+  const opacities = await page.$$eval('.notifs li', (els) => els.map((el) => getComputedStyle(el).opacity));
+  assert.deepEqual(opacities, ['1', '1', '1']);
+  await ctx.close();
+});
+
+test('fonds : emplacements des photos (voile et photo) pris en compte, bureau et écran verrouillé', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.addStyleTag({ content: '#os { --lock-photo: linear-gradient(rgb(255, 0, 0), rgb(0, 0, 255)); --lock-veil: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)); --desk-photo: linear-gradient(rgb(0, 255, 0), rgb(0, 0, 255)); --desk-veil: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)); }' });
+  const bg = (sel) => page.$eval(sel, (el) => getComputedStyle(el).backgroundImage);
+  const lock = await bg('#lock');
+  assert.ok(lock.indexOf('rgba(0, 0, 0, 0.55)') < lock.indexOf('rgb(255, 0, 0)'), 'le voile est au-dessus de la photo (verrouillage)');
+  const desk = await bg('#desktop');
+  assert.ok(desk.indexOf('rgba(0, 0, 0, 0.55)') < desk.indexOf('rgb(0, 255, 0)'), 'le voile est au-dessus de la photo (bureau)');
+  await ctx.close();
+});
+
+test('plein écran : proposé (jamais automatique) sur l\'écran verrouillé et dans la barre de menus', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  assert.equal(await page.evaluate(() => !!document.fullscreenElement), false, 'pas de plein écran imposé');
+  if (!(await page.evaluate(() => document.fullscreenEnabled))) { await ctx.close(); return; }
+  const btn = page.locator('#lock [data-action=fullscreen]');
+  assert.equal(await btn.isVisible(), true);
+  assert.equal(await btn.getAttribute('aria-pressed'), 'false');
+  await btn.click();
+  await page.waitForFunction(() => !!document.fullscreenElement, null, { timeout: 3000 }).catch(() => {});
+  const on = await page.evaluate(() => !!document.fullscreenElement);
+  assert.equal(await btn.textContent(), on ? 'Quitter le plein écran' : 'Plein écran');
+  await ctx.close();
+});
+
+test('bureau : la photo cadrée est visible à 1440 px et masquée en dessous de 1100 px', async () => {
+  let ctx = await site.browser.newContext(DESKTOP);
+  let page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  assert.equal(await page.locator('.desk-photo').isVisible(), true);
+  const photo = await page.locator('.desk-photo').boundingBox();
+  assert.ok(photo.height < 300 && photo.width < 200, 'la photo reste un petit cadre (' + Math.round(photo.width) + '×' + Math.round(photo.height) + ')');
+  await ctx.close();
+  ctx = await site.browser.newContext({ viewport: { width: 1000, height: 700 } });
+  page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  assert.equal(await page.locator('.desk-photo').isVisible(), false);
+  await ctx.close();
+});

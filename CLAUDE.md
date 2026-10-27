@@ -32,12 +32,17 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Avant de commencer un travail, présenter un plan court et attendre sa validation.
 - Travailler sur une branche ; ne fusionner dans `main` (donc ne publier) qu'après son accord explicite.
 
-## Mode bureau (inspiré de frvky.online, identité propre)
-- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Réalisations, Disponibilité, Hobbies, Contact) et dock.
+## Mode bureau (identité macOS, décision de Michaël)
+- **Direction : le bureau a une identité macOS** (avant : « inspiré de frvky.online, identité propre »). On reprend les conventions et l'esprit de macOS : barre de menus en haut avec le nom de l'application active, fenêtres à boutons de contrôle à gauche, dock centré, verre dépoli sur fond coloré, heure et date en haut à droite. Le mode téléphone garde les conventions iOS (section suivante).
+- Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Réalisations, Disponibilité, Hobbies, Contact), widgets (Vibecoding, Disponibilité), photo cadrée et dock.
+- **Priorité d'expérience (Michaël) : la séquence des notifications** de l'écran verrouillé. Elles arrivent une à une (fondu et glissement), une seule fois, en moins de 5 s au total, sans faire bouger la mise en page ; tout est visible tout de suite si `prefers-reduced-motion` est demandé. Pas de boucle automatique.
+- Fond d'écran : dégradé abstrait en attendant les photos de Michaël (emplacements `--lock-photo` / `--desk-photo` dans `css/os.css`, mode d'emploi dans `DESIGN.md`).
+- Plein écran du navigateur : proposé par un bouton « Plein écran » (Échap en sort), jamais imposé.
 - Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
 - Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.
-- Choix par défaut en attendant l'avis de Michaël : fond dégradé abstrait (pas de photo), accent bleu, icônes dessinées maison.
-- Pas de faux horodatages, pas de logos de marques tierces.
+- Choix par défaut : accent bleu, icônes dessinées maison.
+- **Limites de licence, valables même avec une identité macOS** : pas de logo Apple, pas de SF Symbols, pas de police SF Pro hébergée ou distribuée (la pile `-apple-system` appelle la police déjà installée, c'est permis) ; pas de noms de produits ou de marques Apple dans l'interface (« Finder », « Safari », « iOS », « iPhone »…) ni de logos de marques tierces ; icônes SVG dessinées maison. Le site ne doit pas passer pour un produit Apple. Ces limites viennent des licences et des marques, pas d'un choix de style : on les lève seulement après un avis juridique.
+- Pas de faux horodatages.
 
 ## Mode téléphone (conventions des Human Interface Guidelines, version web)
 - Le site reste statique : pas de SwiftUI ni de SF Symbols (licence limitée aux plateformes Apple). On reprend les principes avec nos propres icônes SVG.

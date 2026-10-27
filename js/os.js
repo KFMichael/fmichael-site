@@ -469,6 +469,28 @@
     themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
   }
 
+  /* Plein écran : proposé, jamais imposé (Échap en sort). Caché si le navigateur ne le permet pas. */
+  function initFullscreen() {
+    var buttons = os.querySelectorAll('[data-action="fullscreen"]');
+    if (!document.fullscreenEnabled || !root.requestFullscreen) return;
+    function sync() {
+      var on = !!document.fullscreenElement;
+      Array.prototype.forEach.call(buttons, function (b) {
+        b.hidden = false;
+        b.textContent = on ? 'Quitter le plein écran' : 'Plein écran';
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    Array.prototype.forEach.call(buttons, function (b) {
+      b.addEventListener('click', function () {
+        var p = document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen();
+        if (p && p.catch) p.catch(function () {});
+      });
+    });
+    document.addEventListener('fullscreenchange', sync);
+    sync();
+  }
+
   function init() {
     if (ready) return;
     ready = true;
@@ -516,6 +538,7 @@
     Array.prototype.forEach.call(os.querySelectorAll('[data-action="classic"]'), function (b) {
       b.addEventListener('click', function () { store('mode', 'classic'); disable(true); });
     });
+    initFullscreen();
     document.getElementById('os-lock').addEventListener('click', showLock);
     themeBtn.addEventListener('click', function () {
       document.getElementById('theme-toggle').click();
