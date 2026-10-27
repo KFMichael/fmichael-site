@@ -7,13 +7,16 @@
     "test": "node --test \"tests/unit/*.test.js\"",
     "test:a11y": "node --test \"tests/a11y/*.test.js\"",
     "test:e2e": "node --test \"tests/e2e/*.test.js\"",
-    "check:site": "bash scripts/assemble-site.sh _site"
+    "check:site": "bash scripts/assemble-site.sh _site",
+    "check:lighthouse": "node scripts/lighthouse.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "axe-core": "^4.10.0",
+    "chrome-launcher": "1.2.2",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
+    "lighthouse": "13.6.0",
     "playwright": "1.63.0"
   }
 }

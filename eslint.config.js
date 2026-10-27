@@ -2,7 +2,7 @@ const js = require('@eslint/js');
 const globals = require('globals');
 
 module.exports = [
-  { ignores: ['node_modules/'] },
+  { ignores: ['node_modules/', '_site/'] },
   js.configs.recommended,
   {
     files: ['js/**/*.js'],
@@ -17,6 +17,10 @@ module.exports = [
     // Le code passé à page.evaluate() s'exécute dans le navigateur
     files: ['tests/a11y/*.js', 'tests/e2e/*.js', 'tests/helpers/*.js'],
     languageOptions: { globals: { ...globals.node, ...globals.browser, axe: 'readonly', Touch: 'readonly', TouchEvent: 'readonly' } }
+  },
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { sourceType: 'module', ecmaVersion: 2022, globals: globals.node }
   },
   {
     files: ['eslint.config.js', 'tests/**/*.js'],
