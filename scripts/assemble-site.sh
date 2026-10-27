@@ -6,11 +6,11 @@ set -euo pipefail
 out="${1:-_site}"
 rm -rf "$out"
 mkdir -p "$out"
-cp index.html 404.html favicon.svg CNAME "$out"/
+cp index.html 404.html favicon.svg CNAME robots.txt sitemap.xml "$out"/
 cp -R css js img "$out"/
 
 fail=0
-for f in index.html 404.html favicon.svg CNAME img/share.png; do
+for f in index.html 404.html favicon.svg CNAME robots.txt sitemap.xml img/share.png; do
   [ -f "$out/$f" ] || { echo "Fichier indispensable manquant : $f"; fail=1; }
 done
 

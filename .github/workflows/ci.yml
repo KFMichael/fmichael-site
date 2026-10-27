@@ -45,3 +45,5 @@ jobs:
         run: npm run test:e2e
       - name: Assemblage du site publié
         run: npm run check:site
+      - name: Lighthouse (accessibilité, bonnes pratiques et SEO bloquants ; performance affichée)
+        run: npm run check:lighthouse
