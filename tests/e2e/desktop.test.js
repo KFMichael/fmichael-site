@@ -74,10 +74,12 @@ test('hobbies : la carte Vibecoding propose les deux projets', async () => {
   await page.click('#enter');
   await page.waitForSelector('#lock', { state: 'hidden' });
   await page.click('.dock [data-app=hobbies]');
-  const links = await page.$$eval('.win .hobby-code a', (as) => as.map((a) => [a.textContent.replace('↗', '').trim(), a.href]));
+  const links = await page.$$eval('.win .hobby-code a', (as) => as.map((a) => [a.textContent.replace('↗', '').replace("(s'ouvre dans un nouvel onglet)", '').trim(), a.href]));
   assert.deepEqual(links, [
     ['Apprendre à jouer aux échecs', 'https://echecs.fmichael.cloud/'],
     ['Apprendre à gérer son budget', 'https://monpatrimoine.fmichael.cloud/'],
   ]);
+  const attrs = await page.$$eval('.win .hobby-code a', (as) => as.map((a) => [a.target, a.rel, a.textContent.includes('nouvel onglet')]));
+  assert.deepEqual(attrs, [['_blank', 'noopener', true], ['_blank', 'noopener', true]], 'nouvel onglet, noopener, et annoncé dans le nom du lien');
   await ctx.close();
 });
