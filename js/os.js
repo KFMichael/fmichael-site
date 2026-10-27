@@ -200,6 +200,7 @@
   var ICON_CLOSE = '<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
   var ICON_BACK = '<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M6.5 1.5L3 5l3.5 3.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var ICON_CHEV = '<svg viewBox="0 0 10 16" aria-hidden="true" focusable="false"><path d="M2 2l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_MIN = '<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M2 5h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
   var ICON_ZOOM ='<svg viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M5 2v6M2 5h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
 
   function dockButton(id) { return dock.querySelector('.dock-item[data-app="' + id + '"]'); }
@@ -215,7 +216,10 @@
   function openApp(id) {
     var app = APPS[id];
     if (!app) return;
-    if (openWins[id]) { setActive(openWins[id]); openWins[id].focus(); return; }
+    if (openWins[id]) {
+      if (openWins[id].classList.contains('minimized')) restoreApp(id);
+      setActive(openWins[id]); openWins[id].focus(); return;
+    }
     var phone = isPhone();
     if (phone) Object.keys(openWins).forEach(function (k) { closeApp(k, false); });
 
@@ -237,6 +241,7 @@
       ? '<button type="button" class="back">' + ICON_BACK + '<span class="back-label">Accueil</span></button>'
       : '<div class="lights">' +
           '<button type="button" class="light close" aria-label="Fermer la fenêtre ' + app.title + '">' + ICON_CLOSE + '</button>' +
+          '<button type="button" class="light min" aria-label="Réduire la fenêtre ' + app.title + '">' + ICON_MIN + '</button>' +
           '<button type="button" class="light zoom" aria-label="Agrandir la fenêtre ' + app.title + '" aria-pressed="false">' + ICON_ZOOM + '</button>' +
         '</div>';
 
@@ -291,11 +296,16 @@
       histDepth = 1;
     } else {
       win.querySelector('.close').addEventListener('click', function () { closeApp(id, true); });
+      win.querySelector('.min').addEventListener('click', function () { minimizeApp(id); });
       var zoom = win.querySelector('.zoom');
       zoom.addEventListener('click', function () {
         var on = win.classList.toggle('max');
         zoom.setAttribute('aria-pressed', on ? 'true' : 'false');
         zoom.setAttribute('aria-label', (on ? 'Restaurer' : 'Agrandir') + ' la fenêtre ' + app.title);
+      });
+      // Double-clic sur la barre de titre : agrandir / restaurer (le bouton vert reste là pour le clavier)
+      win.querySelector('.titlebar').addEventListener('dblclick', function (e) {
+        if (!e.target.closest('button')) zoom.click();
       });
       win.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') { e.stopPropagation(); closeApp(id, true); }
@@ -319,6 +329,40 @@
     setTimeout(done, 450);
   }
 
+  /* Réduire : la fenêtre part dans le dock (point sous l'icône), un clic sur l'icône la rouvre. */
+  function lastVisible() {
+    var ids = Object.keys(openWins).filter(function (k) { return !openWins[k].classList.contains('minimized') && !openWins[k].classList.contains('minimizing'); });
+    return ids.length ? openWins[ids[ids.length - 1]] : null;
+  }
+
+  function minimizeApp(id) {
+    var win = openWins[id];
+    if (!win || isPhone() || win.classList.contains('minimized')) return;
+    var finish = function () { win.classList.remove('minimizing'); win.classList.add('minimized'); };
+    win.inert = true;
+    if (reduced.matches) finish();
+    else { win.classList.add('minimizing'); setTimeout(finish, 230); }
+    Array.prototype.forEach.call(appButtons(id), function (b) {
+      b.setAttribute('aria-expanded', 'false');
+      b.setAttribute('data-min', 'true');
+    });
+    win.classList.remove('active');
+    setActive(lastVisible());
+    var btn = dockButton(id);
+    if (btn) btn.focus();
+  }
+
+  function restoreApp(id) {
+    var win = openWins[id];
+    if (!win) return;
+    win.classList.remove('minimized', 'minimizing');
+    win.inert = false;
+    Array.prototype.forEach.call(appButtons(id), function (b) {
+      b.setAttribute('aria-expanded', 'true');
+      b.removeAttribute('data-min');
+    });
+  }
+
   function closeApp(id, returnFocus, immediate) {
     var win = openWins[id];
     if (!win) return;
@@ -337,8 +381,8 @@
       var btn = dockButton(id);
       if (btn) btn.focus();
     }
-    var ids = Object.keys(openWins);
-    setActive(ids.length ? openWins[ids[ids.length - 1]] : null);
+    Array.prototype.forEach.call(appButtons(id), function (b) { b.removeAttribute('data-min'); });
+    setActive(lastVisible());
   }
 
   /* ---------- Pile de navigation (téléphone) ---------- */
@@ -469,6 +513,47 @@
     themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
   }
 
+  /* Dock qui grossit au survol (souris seulement, coupé si les animations sont réduites).
+     Chaque icône est mise à l'échelle par transform et décalée pour rester centrée : la mise en page ne bouge pas. */
+  function initDockMagnify() {
+    var items = Array.prototype.slice.call(dock.querySelectorAll('.dock-item'));
+    var frame = 0, lastX = 0;
+    var fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+    var MAX = 0.55, RADIUS = 112;
+
+    function reset() {
+      dock.classList.remove('mag');
+      items.forEach(function (it) { it.style.removeProperty('--mag'); it.style.removeProperty('--tx'); });
+    }
+    function apply() {
+      frame = 0;
+      var left = dock.getBoundingClientRect().left + dock.clientLeft;
+      var extras = items.map(function (it) {
+        var center = left + it.offsetLeft + it.offsetWidth / 2;
+        var t = Math.max(0, 1 - Math.abs(lastX - center) / RADIUS);
+        var scale = 1 + MAX * (t * t * (3 - 2 * t));
+        return { it: it, scale: scale, extra: (scale - 1) * it.offsetWidth };
+      });
+      var total = extras.reduce(function (n, e) { return n + e.extra; }, 0);
+      var before = 0;
+      extras.forEach(function (e) {
+        e.it.style.setProperty('--mag', e.scale.toFixed(3));
+        e.it.style.setProperty('--tx', (before + e.extra / 2 - total / 2).toFixed(1) + 'px');
+        before += e.extra;
+      });
+    }
+    dock.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse' || isPhone() || reduced.matches || !fine.matches) return;
+      dock.classList.add('mag');
+      lastX = e.clientX;
+      if (!frame) frame = requestAnimationFrame(apply);
+    });
+    dock.addEventListener('pointerleave', function () {
+      if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      reset();
+    });
+  }
+
   /* Plein écran : proposé, jamais imposé (Échap en sort). Caché si le navigateur ne le permet pas. */
   function initFullscreen() {
     var buttons = os.querySelectorAll('[data-action="fullscreen"]');
@@ -539,6 +624,7 @@
       b.addEventListener('click', function () { store('mode', 'classic'); disable(true); });
     });
     initFullscreen();
+    initDockMagnify();
     document.getElementById('os-lock').addEventListener('click', showLock);
     themeBtn.addEventListener('click', function () {
       document.getElementById('theme-toggle').click();

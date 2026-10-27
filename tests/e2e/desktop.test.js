@@ -17,7 +17,7 @@ test('bureau : une fenêtre s\'ouvre depuis le dock, Échap la ferme et rend le 
   await page.click('#enter');
   await page.waitForSelector('#lock', { state: 'hidden' });
   await page.click('.dock [data-app=travail]');
-  assert.equal(await page.locator('.win .light').count(), 2, 'boutons de fenêtre (fermer, agrandir)');
+  assert.equal(await page.locator('.win .light').count(), 3, 'boutons de fenêtre (fermer, réduire, agrandir)');
   assert.ok((await page.locator('.win article.card').count()) >= 4, 'le contenu complet, pas une liste');
   assert.ok((await page.locator('.win article.card .when').count()) >= 4, 'chaque réalisation affiche sa période');
   await page.keyboard.press('Escape');
@@ -261,5 +261,104 @@ test('bureau : la photo cadrée est visible à 1440 px et masquée en dessous de
   await page.click('#enter');
   await page.waitForSelector('#lock', { state: 'hidden' });
   assert.equal(await page.locator('.desk-photo').isVisible(), false);
+  await ctx.close();
+});
+
+async function enterDesktop(page) {
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+}
+
+test('réduire : la fenêtre part dans le dock (point), l\'icône la rouvre, focus et étiquettes cohérents', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('.dock [data-app=parcours]');
+  assert.equal(await page.getAttribute('.win .light.min', 'aria-label'), 'Réduire la fenêtre Parcours');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours');
+  await page.click('.win .light.min');
+  await page.waitForSelector('.win.minimized', { state: 'attached' });
+  assert.equal(await page.locator('.win').isVisible(), false, 'la fenêtre est cachée');
+  const btn = page.locator('.dock [data-app=parcours]');
+  assert.equal(await btn.getAttribute('aria-expanded'), 'false');
+  assert.equal(await btn.getAttribute('data-min'), 'true');
+  const dot = await btn.evaluate((el) => getComputedStyle(el, '::after').content);
+  assert.notEqual(dot, 'none', 'le point reste sous l\'icône');
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.app), 'parcours', 'le focus revient au dock');
+  assert.equal(await page.locator('.mb-app').textContent(), '', 'plus de fenêtre active');
+  assert.equal(await page.locator('.win').count(), 1, 'la fenêtre n\'est pas fermée');
+  await btn.click();
+  await page.waitForFunction(() => document.querySelector('.win') && !document.querySelector('.win').classList.contains('minimized'));
+  assert.equal(await page.locator('.win').isVisible(), true);
+  assert.equal(await btn.getAttribute('aria-expanded'), 'true');
+  assert.equal(await btn.getAttribute('data-min'), null);
+  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours');
+  await ctx.close();
+});
+
+test('réduire : atteignable au clavier, la fenêtre suivante devient active', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('.dock [data-app=parcours]');
+  await page.click('.dock [data-app=hobbies]');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Hobbies');
+  await page.focus('.win[data-app=hobbies] .light.min');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.win[data-app=hobbies].minimized', { state: 'attached' });
+  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours', 'la fenêtre visible reprend la main');
+  await ctx.close();
+});
+
+test('double-clic sur la barre de titre : agrandit puis restaure (jamais sur un bouton)', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('.dock [data-app=travail]');
+  const win = page.locator('.win');
+  await page.dblclick('.win .win-title');
+  assert.equal(await win.evaluate((el) => el.classList.contains('max')), true);
+  assert.equal(await page.getAttribute('.win .light.zoom', 'aria-pressed'), 'true');
+  await page.dblclick('.win .win-title');
+  assert.equal(await win.evaluate((el) => el.classList.contains('max')), false);
+  await page.dblclick('.win .light.min').catch(() => {});
+  assert.equal(await win.evaluate((el) => el.classList.contains('max')), false, 'un double-clic sur un bouton n\'agrandit pas');
+  await ctx.close();
+});
+
+test('dock : les icônes grossissent près de la souris, sans bouger la mise en page', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  const dock = page.locator('.dock');
+  const before = await dock.boundingBox();
+  const items = page.locator('.dock .dock-item');
+  const first = await items.first().boundingBox();
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
+  await page.mouse.move(first.x + first.width / 2 + 1, first.y + first.height / 2);
+  await page.waitForFunction(() => document.querySelector('.dock').classList.contains('mag'));
+  const scale = (i) => items.nth(i).evaluate((el) => parseFloat(el.style.getPropertyValue('--mag')));
+  const near = await scale(0);
+  const far = await scale(6);
+  assert.ok(near > 1.4, 'l\'icône sous la souris grossit (' + near + ')');
+  assert.equal(far, 1, 'une icône éloignée ne bouge pas');
+  const after = await dock.boundingBox();
+  assert.deepEqual([after.x, after.y, after.width, after.height], [before.x, before.y, before.width, before.height], 'la mise en page ne bouge pas');
+  await page.mouse.move(700, 300);
+  await page.waitForFunction(() => !document.querySelector('.dock').classList.contains('mag'));
+  assert.equal(await items.first().evaluate((el) => el.style.getPropertyValue('--mag')), '', 'tout revient à la taille normale');
+  await ctx.close();
+});
+
+test('dock : pas de grossissement avec mouvement réduit', async () => {
+  const ctx = await site.browser.newContext({ ...DESKTOP, reducedMotion: 'reduce' });
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  const first = await page.locator('.dock .dock-item').first().boundingBox();
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2);
+  await page.mouse.move(first.x + first.width / 2 + 2, first.y + first.height / 2);
+  await page.waitForTimeout(150);
+  assert.equal(await page.evaluate(() => document.querySelector('.dock').classList.contains('mag')), false);
   await ctx.close();
 });
