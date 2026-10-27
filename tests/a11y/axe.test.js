@@ -19,6 +19,8 @@ test.before(async () => {
 test.after(async () => { await site.close(); });
 
 async function violations(page) {
+  // Laisse finir les animations (séquence des notifications) : axe lit les couleurs et opacités réelles.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
   await page.addScriptTag({ content: axeSource });
   const result = await page.evaluate((tags) => axe.run(document, { runOnly: { type: 'tag', values: tags } }), TAGS);
   return result.violations.map((v) => v.id + ' : ' + v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' ; '));

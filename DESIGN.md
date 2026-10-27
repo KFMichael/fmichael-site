@@ -38,7 +38,16 @@ Couleurs sémantiques définies une seule fois, en clair et en sombre.
 Contrastes à contrôler à chaque changement : texte ≥ 4,5:1, gros texte et composants ≥ 3:1, en clair et en sombre.
 
 ## Fond d'écran
-Dégradé abstrait en trois taches radiales (bleu, violet, rose en clair ; versions assombries en sombre), défini par `--wall` (téléphone) et `--wp-1..3` / `--wp-base` (bureau). Pas de photo pour l'instant (voir l'issue #6). Si une photo remplace le dégradé, il faut un voile qui garde le texte à 4,5:1.
+Dégradé abstrait en trois taches radiales (bleu, violet, rose en clair ; versions assombries en sombre), défini par `--wall` (téléphone) et `--wp-1..3` / `--wp-base` (bureau). Pas de photo pour l'instant (voir l'issue #6).
+
+**Mettre tes photos** : deux emplacements, un pour l'écran verrouillé (`--lock-photo`) et un pour le bureau (`--desk-photo`), chacun avec son voile (`--lock-veil`, `--desk-veil`). Dans `css/os.css`, bloc `#os` :
+1. copie la photo dans `img/` (WebP, environ 2000 px de large, moins de 400 Ko) ;
+2. renseigne `--lock-photo` avec l'adresse de l'image, écrite `url("../img/wallpaper-lock.webp")` (idem pour `--desk-photo`) ;
+3. renseigne le voile qui garde le texte lisible : `--lock-veil: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55))` (idem `--desk-veil`). Un voile de 0,55 garantit 4,5:1 pour du texte blanc, même sur une photo claire ;
+4. vérifie `npm run check:site` (il échoue si le fichier manque) puis axe.
+La photo couvre tout l'écran (`cover`, centrée). Les dégradés restent dessous comme repli.
+
+**Photo cadrée du bureau** : remplace `img/desk-photo.svg` dans `index.html` (`figure.desk-photo`) par ta photo et décris-la dans `alt` (aujourd'hui `alt=""`, car l'illustration est provisoire).
 
 ## Le verre
 Toutes les surfaces flottantes (widgets, fenêtres, dock, notifications, barres) suivent la même recette :
@@ -66,6 +75,8 @@ Replis obligatoires :
 
 ## Composants
 - **Lien d'évitement** : visible au focus, premier élément focusable.
+- **Séquence des notifications** : elles arrivent une à une (fondu, glissement de 1,1 rem, légère élasticité), à 0,6 s, 1,7 s et 2,8 s, une seule fois (moins de 5 s au total), sans décalage de mise en page. Tout est visible immédiatement sous `prefers-reduced-motion`.
+- **Plein écran** : bouton « Plein écran » sur l'écran verrouillé et dans la barre de menus, jamais automatique.
 - **Écran verrouillé** : heure réelle, 3 notifications cliquables, bouton « Entrer ».
 - **Accueil (téléphone)** : grille d'icônes, widgets, dock. Anneau de focus **blanc** de 3 px avec liseré sombre, visible sur le fond coloré.
 - **Pile de navigation** : grand titre qui se réduit, bouton de retour avec le titre de l'écran précédent, glissement depuis le bord gauche, Échap ou Précédent pour revenir. La barre « accueil » ferme l'application.
@@ -83,7 +94,7 @@ Replis obligatoires :
 - Aucune animation automatique de plus de 5 secondes.
 
 ## Références et licences
-On reprend des **conventions** (verre dépoli, pile de navigation, grille d'icônes), pas des éléments protégés :
+Le bureau suit une **identité macOS** (décision de Michaël) et le téléphone les conventions iOS. On reprend des **conventions** (verre dépoli, pile de navigation, grille d'icônes), pas des éléments protégés :
 - **Interdit** : SF Symbols, police SF Pro hébergée ou distribuée, logos et marques Apple, noms « iOS », « iPhone » ou « Apple » dans l'interface (la seule mention factuelle, « sur iOS et Android » dans une réalisation, décrit un livrable réel), logos de marques tierces, faux horodatages.
 - **Autorisé** : icônes SVG dessinées maison, polices système appelées par leur nom, conventions des Human Interface Guidelines.
 - Le site doit garder une identité propre (nom, couleurs, contenu) et ne pas passer pour un produit Apple.
