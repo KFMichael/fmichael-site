@@ -123,12 +123,18 @@ test('pile de navigation : la barre « accueil » ferme toute la pile, et la sui
   await ctx.close();
 });
 
-test('Disponibilité : « indisponible », sans grille de calendrier', async () => {
+test('Disponibilité : mission longue, projets courts, lien de rendez-vous, sans grille de calendrier', async () => {
   const { ctx, page } = await open();
   await unlock(page);
   await page.tap('#home [data-app=dispo]');
   const text = await page.locator('.win-body').innerText();
-  assert.match(text, /indisponible/i);
+  assert.match(text, /mission longue/i);
+  assert.match(text, /courte durée/i);
+  const link = await page.$eval('.win-body a.button', (a) => [a.href, a.target, a.rel, a.textContent]);
+  assert.equal(link[0], 'https://calendly.com/kangahmichael/new-meeting');
+  assert.deepEqual(link.slice(1, 3), ['_blank', 'noopener']);
+  assert.match(link[3], /Prendre rendez-vous/);
+  assert.match(link[3], /nouvel onglet/, 'nouvel onglet annoncé dans le nom du lien');
   assert.equal(await page.locator('.win table').count(), 0);
   await ctx.close();
 });

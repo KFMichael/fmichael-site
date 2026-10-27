@@ -38,7 +38,7 @@ Référence : le mobile de frvky.online (écran verrouillé plein écran, photo 
 - Tests faits (Chromium émulé, 320 / 375 / 430 px) : verrouillage, accueil, application, Précédent, Échap, bascule classique, redimensionnement. Lighthouse (mobile et bureau : 100 / 100 / 96 / 100, le 96 vient de l'absence de `favicon.ico`) et axe (0 violation, clair et sombre, tous les écrans) : OK. Pas encore fait : essai sur un vrai téléphone.
 
 ## Contenu mis à jour après la première livraison
-- Statut : « En mission, indisponible pour le moment » partout (accroche, contact, notification, widget, application Disponibilité). L'ancienne grille de calendrier est supprimée.
+- Statut (mis à jour) : « En mission longue, disponible pour des projets de courte durée » partout (accroche, contact, notification, widget, application Disponibilité). L'ancienne grille de calendrier est supprimée.
 - Hobbies : cartes photo avec illustrations provisoires `img/hobby-*.svg` à remplacer par les photos de Michaël.
 - Travail : liste des domaines et nouvelle carte « Site portfolio, Mirielle Rohr ».
 

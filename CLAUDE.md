@@ -48,7 +48,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 
 ## Où on en est
 - **Backlog = les issues GitHub** de `KFMichael/fmichael-site` (étiquettes `contenu`, `design`, `technique`, `hors-code`). Voir aussi `docs/plan-mobile.md` (historique du mode téléphone).
-- En ligne : mode bureau, mode téléphone (conventions Human Interface Guidelines en version web, pile de navigation), version classique, Parcours (CV) et Réalisations (études de cas), statut « En mission », hobbies en cartes (illustrations provisoires), favicon, mesure d'audience Cloudflare, CI (lint, tests unitaires, axe, comportement, assemblage du site), déploiement du site seul.
+- En ligne : mode bureau, mode téléphone (conventions Human Interface Guidelines en version web, pile de navigation), version classique, Parcours (CV) et Réalisations (études de cas), statut « En mission longue, disponible pour des projets de courte durée » avec bouton de rendez-vous Calendly (lien, sans script tiers), hobbies en cartes (illustrations provisoires), favicon, mesure d'audience Cloudflare, CI (lint, tests unitaires, axe, comportement, assemblage du site), déploiement du site seul.
 - **Design : le glass (verre dépoli sur fond dégradé) est la direction retenue par Michaël.** Le design éditorial (angles droits, aplats) a été testé puis refusé : ne pas le reproposer. Les surfaces (widgets, fenêtres, dock, notifications) sont en verre : fond semi-transparent, flou, reflet fin sur le bord ; opaques si `prefers-reduced-transparency`. Pas de césure automatique du texte (`hyphens: auto` interdit).
 - Publication : fusion dans `main` seulement après le « go » de Michaël.
 
