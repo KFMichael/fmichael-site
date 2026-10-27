@@ -66,3 +66,18 @@ test('glass (bureau) : les fenêtres sont en verre dépoli', async () => {
   assert.ok(alpha > 0 && alpha < 1, 'fond semi-transparent, pas opaque : ' + bg);
   await ctx.close();
 });
+
+test('hobbies : la carte Vibecoding propose les deux projets', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('.dock [data-app=hobbies]');
+  const links = await page.$$eval('.win .hobby-code a', (as) => as.map((a) => [a.textContent.replace('↗', '').trim(), a.href]));
+  assert.deepEqual(links, [
+    ['Apprendre à jouer aux échecs', 'https://echecs.fmichael.cloud/'],
+    ['Apprendre à gérer son budget', 'https://monpatrimoine.fmichael.cloud/'],
+  ]);
+  await ctx.close();
+});
