@@ -69,6 +69,7 @@ Replis obligatoires :
 - **Écran verrouillé** : heure réelle, 3 notifications cliquables, bouton « Entrer ».
 - **Accueil (téléphone)** : grille d'icônes, widgets, dock. Anneau de focus **blanc** de 3 px avec liseré sombre, visible sur le fond coloré.
 - **Pile de navigation** : grand titre qui se réduit, bouton de retour avec le titre de l'écran précédent, glissement depuis le bord gauche, Échap ou Précédent pour revenir. La barre « accueil » ferme l'application.
+- **Widget Vibecoding (bureau)** : en haut à droite, en verre, derrière les fenêtres ; deux liens directs vers les projets (nouvel onglet). Sur téléphone, un widget équivalent de l'accueil ouvre la carte Vibecoding, première des Hobbies.
 - **Fenêtres (bureau)** : barre de titre translucide, Échap ferme et rend le focus au dock.
 - **Cartes Hobbies** : illustration `img/hobby-*.svg` provisoire (en attendant les photos), légende lisible sur l'image.
 - **Boutons et liens** : vrais `<button>` et `<a>`, jamais de `div` cliquable. Focus avec contour de 3 px.

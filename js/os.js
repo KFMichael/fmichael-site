@@ -80,6 +80,9 @@
       '</button>' +
       '<button type="button" class="widget widget-cv" data-app="parcours" aria-haspopup="dialog" aria-expanded="false">' +
         '<span class="w-big">11 ans</span><span class="w-note">entre métier et tech, dont 6 chez Louis Vuitton</span>' +
+      '</button>' +
+      '<button type="button" class="widget widget-code" data-app="hobbies" aria-haspopup="dialog" aria-expanded="false">' +
+        '<span class="w-big" aria-hidden="true">&lt;/&gt;</span><span class="w-note">Vibecoding : deux projets à essayer</span>' +
       '</button>';
     home.insertBefore(widgets, home.firstChild);
 

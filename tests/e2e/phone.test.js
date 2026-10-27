@@ -230,3 +230,12 @@ test('glass : le contour de focus reste visible sur le fond coloré de l\'accuei
   assert.equal(ring.width, '3px');
   await ctx.close();
 });
+
+test('accueil : le widget Vibecoding ouvre Hobbies, dont la première carte est Vibecoding', async () => {
+  const { ctx, page } = await open();
+  await unlock(page);
+  await page.tap('.widget-code');
+  await page.waitForSelector('.win');
+  assert.match(await page.locator('.win .hobbies > li').first().innerText(), /Vibecoding/);
+  await ctx.close();
+});
