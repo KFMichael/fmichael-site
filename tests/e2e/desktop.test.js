@@ -103,7 +103,7 @@ test('bureau : le widget Vibecoding est en verre, avec les deux projets, et il p
   await page.goto(site.base);
   await page.click('#enter');
   await page.waitForSelector('#lock', { state: 'hidden' });
-  const w = page.locator('.desk-widget');
+  const w = page.locator('.desk-widget[aria-label="Vibecoding"]');
   assert.equal(await w.isVisible(), true);
   assert.notEqual(await w.evaluate((el) => getComputedStyle(el).backdropFilter), 'none', 'flou du verre');
   const links = await w.locator('a').evaluateAll((as) => as.map((a) => [a.href, a.target, a.rel]));
@@ -114,7 +114,7 @@ test('bureau : le widget Vibecoding est en verre, avec les deux projets, et il p
   await page.click('.dock [data-app=hobbies]');
   const winOnTop = await page.evaluate(() => {
     const r = document.querySelector('.win').getBoundingClientRect();
-    const w2 = document.querySelector('.desk-widget').getBoundingClientRect();
+    const w2 = document.querySelector('.desk-widgets').getBoundingClientRect();
     const x = Math.max(r.left, w2.left) + 5, y = Math.max(r.top, w2.top) + 5;
     const overlap = r.left < w2.right && r.right > w2.left && r.top < w2.bottom && r.bottom > w2.top;
     return !overlap || !!document.elementFromPoint(x, y).closest('.win');
@@ -129,5 +129,60 @@ test('hobbies : la carte Vibecoding est la première (page classique)', async ()
   await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
   await page.goto(site.base);
   assert.equal(await page.locator('.hobbies > li').first().getAttribute('class'), 'hobby hobby-code');
+  await ctx.close();
+});
+
+test('bureau : le widget Disponibilité affiche le statut et le lien de rendez-vous', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  const w = page.locator('.desk-widget[aria-label="Disponibilité"]');
+  assert.equal(await w.isVisible(), true);
+  assert.match(await w.innerText(), /mission longue, disponible pour des projets de courte durée/);
+  const [href, target, rel, name] = await w.locator('a').evaluate((a) => [a.href, a.target, a.rel, a.textContent]);
+  assert.deepEqual([href, target, rel], ['https://calendly.com/kangahmichael/new-meeting', '_blank', 'noopener']);
+  assert.match(name, /nouvel onglet/);
+  await ctx.close();
+});
+
+test('accueil (page classique) : bouton de rendez-vous visible, puis « Me contacter »', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const links = await page.$$eval('.hero-actions a', (as) => as.map((a) => [a.getAttribute('href'), a.target, a.rel]));
+  assert.deepEqual(links, [
+    ['https://calendly.com/kangahmichael/new-meeting', '_blank', 'noopener'],
+    ['#contact', '', ''],
+  ]);
+  const box = await page.locator('.hero-actions a').first().boundingBox();
+  assert.ok(box.y + box.height < 900, 'visible sans défiler à 1440×900');
+  await ctx.close();
+});
+
+test('partage : titre, description, image absolue et adresse canonique', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  const meta = (sel) => page.$eval(sel, (m) => m.getAttribute('content') || m.getAttribute('href'));
+  assert.equal(await meta('link[rel=canonical]'), 'https://fmichael.cloud/');
+  assert.equal(await meta('meta[property="og:image"]'), 'https://fmichael.cloud/img/share.png');
+  assert.equal(await meta('meta[property="og:title"]'), await page.title());
+  assert.equal(await meta('meta[property="og:description"]'), await meta('meta[name=description]'));
+  assert.ok((await meta('meta[property="og:image:alt"]')).length > 10, 'texte alternatif de l\'image de partage');
+  assert.equal(await meta('meta[name="twitter:card"]'), 'summary_large_image');
+  await ctx.close();
+});
+
+test('404 : message clair, retour à l\'accueil, non indexée', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base + '404.html');
+  assert.equal(await page.locator('h1').count(), 1);
+  assert.equal(await page.$eval('meta[name=robots]', (m) => m.content), 'noindex');
+  assert.equal(await page.$eval('main a.button', (a) => a.getAttribute('href')), '/');
+  assert.notEqual(await page.$eval('main', (el) => getComputedStyle(el).backdropFilter), 'none', 'verre dépoli');
   await ctx.close();
 });
