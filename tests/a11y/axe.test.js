@@ -66,6 +66,20 @@ for (const scheme of ['light', 'dark']) {
   });
 }
 
+test('bureau : fenêtre réduite et dock agrandi', async () => {
+  const ctx = await browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(base);
+  await page.click('#enter');
+  await page.waitForTimeout(600);
+  await page.click('.dock [data-app=parcours]');
+  await page.click('.win .light.min');
+  await page.waitForSelector('.win.minimized', { state: 'attached' });
+  await page.mouse.move(700, 850);
+  assert.deepEqual(await violations(page), [], 'fenêtre réduite');
+  await ctx.close();
+});
+
 test('version classique (mobile)', async () => {
   const ctx = await browser.newContext({ viewport: { width: 375, height: 740 } });
   const page = await ctx.newPage();

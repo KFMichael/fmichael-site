@@ -37,6 +37,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Écran verrouillé (heure réelle, 3 notifications cliquables, bouton « Entrer »), puis bureau avec barre de menus, fenêtres (Parcours, Réalisations, Disponibilité, Hobbies, Contact), widgets (Vibecoding, Disponibilité), photo cadrée et dock.
 - **Priorité d'expérience (Michaël) : la séquence des notifications** de l'écran verrouillé. Elles arrivent une à une (fondu et glissement), une seule fois, en moins de 5 s au total, sans faire bouger la mise en page ; tout est visible tout de suite si `prefers-reduced-motion` est demandé. Pas de boucle automatique.
 - Fond d'écran : dégradé abstrait en attendant les photos de Michaël (emplacements `--lock-photo` / `--desk-photo` dans `css/os.css`, mode d'emploi dans `DESIGN.md`).
+- Fenêtres : boutons rouge (fermer), jaune (réduire dans le dock : point sous l'icône, un clic la rouvre) et vert (agrandir), double-clic sur la barre de titre pour agrandir ou restaurer. Dock qui grossit au survol (souris seulement, coupé si `prefers-reduced-motion`, la mise en page ne bouge pas).
 - Plein écran du navigateur : proposé par un bouton « Plein écran » (Échap en sort), jamais imposé.
 - Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
 - Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.
