@@ -44,5 +44,34 @@
     return '<span class="home-label" aria-hidden="true">' + short + '</span><span class="visually-hidden">' + label + '</span>';
   }
 
-  return { clockParts: clockParts, isSwipeUp: isSwipeUp, isEdgeSwipeBack: isEdgeSwipeBack, rowSummary: rowSummary, labelHtml: labelHtml };
+  // Texte comparable : minuscules, sans accents, espaces simples
+  function normalize(text) {
+    return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  // Recherche dans les entrées {label, hint, keywords} : tous les mots saisis doivent se trouver
+  // dans le libellé, l'indice ou les mots-clés. Classement : libellé qui commence par le mot, puis libellé qui le
+  // contient, puis le reste ; à égalité, l'ordre d'origine. Sans saisie : toutes les entrées, dans l'ordre.
+  function searchEntries(query, entries) {
+    var tokens = normalize(query).split(' ').filter(Boolean);
+    if (!tokens.length) return entries.slice();
+    var scored = [];
+    entries.forEach(function (entry, index) {
+      var label = normalize(entry.label);
+      var rest = normalize((entry.hint || '') + ' ' + (entry.keywords || ''));
+      var score = 0;
+      for (var i = 0; i < tokens.length; i++) {
+        var t = tokens[i];
+        if (label.split(' ').some(function (w) { return w.indexOf(t) === 0; })) score += 0;
+        else if (label.indexOf(t) !== -1) score += 1;
+        else if (rest.indexOf(t) !== -1) score += 2;
+        else return;
+      }
+      scored.push({ entry: entry, score: score, index: index });
+    });
+    scored.sort(function (a, b) { return a.score - b.score || a.index - b.index; });
+    return scored.map(function (r) { return r.entry; });
+  }
+
+  return { normalize: normalize, searchEntries: searchEntries, clockParts: clockParts, isSwipeUp: isSwipeUp, isEdgeSwipeBack: isEdgeSwipeBack, rowSummary: rowSummary, labelHtml: labelHtml };
 });

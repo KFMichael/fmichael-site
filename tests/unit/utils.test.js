@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { clockParts, isSwipeUp, isEdgeSwipeBack, rowSummary, labelHtml } = require('../../js/utils.js');
+const { clockParts, isSwipeUp, isEdgeSwipeBack, rowSummary, labelHtml, normalize, searchEntries } = require('../../js/utils.js');
 
 // Lundi 26 octobre 2026, 22 h 44 (heure locale)
 const monday = new Date(2026, 9, 26, 22, 44);
@@ -69,4 +69,40 @@ test('rowSummary : texte long tronqué avec une ellipse', () => {
 
 test('rowSummary : le point d\'un nom de domaine ne coupe pas la phrase', () => {
   assert.equal(rowSummary('Contexte. Sites sur louisvuitton.com, en ligne. Autre phrase.'), 'Sites sur louisvuitton.com, en ligne.');
+});
+
+const entries = [
+  { label: 'Parcours', hint: 'CV, expériences', keywords: 'formation louis vuitton' },
+  { label: 'Réalisations', hint: 'Études de cas', keywords: 'shopify boutiques' },
+  { label: 'Hobbies', hint: 'Vibecoding, tennis', keywords: 'échecs budget football' },
+  { label: 'Prendre rendez-vous', hint: 'Calendly', keywords: 'disponibilité' },
+  { label: 'Apprendre à jouer aux échecs', hint: 'Vibecoding', keywords: '' }
+];
+const labels = (q) => searchEntries(q, entries).map((e) => e.label);
+
+test('normalize : sans accents, sans majuscules, espaces simples', () => {
+  assert.equal(normalize('  Réalisations   ÉCHECS '), 'realisations echecs');
+});
+
+test('searchEntries : sans saisie, tout, dans l\'ordre (et sans modifier la liste)', () => {
+  const out = searchEntries('  ', entries);
+  assert.deepEqual(out, entries);
+  assert.notEqual(out, entries);
+});
+
+test('searchEntries : ignore accents et majuscules, cherche dans les mots-clés', () => {
+  assert.deepEqual(labels('realisation'), ['Réalisations']);
+  assert.deepEqual(labels('SHOPIFY'), ['Réalisations']);
+  assert.deepEqual(labels('louis vuitton'), ['Parcours']);
+});
+
+test('searchEntries : un libellé qui commence par le mot passe avant un simple mot-clé', () => {
+  assert.deepEqual(labels('echecs'), ['Apprendre à jouer aux échecs', 'Hobbies']);
+  assert.deepEqual(labels('vibecoding'), ['Hobbies', 'Apprendre à jouer aux échecs']);
+});
+
+test('searchEntries : tous les mots doivent correspondre, aucun résultat sinon', () => {
+  assert.deepEqual(labels('rendez calendly'), ['Prendre rendez-vous']);
+  assert.deepEqual(labels('shopify tennis'), []);
+  assert.deepEqual(labels('zzz'), []);
 });

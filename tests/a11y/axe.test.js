@@ -103,6 +103,26 @@ test('bureau : menus de la barre ouverts', async () => {
   }
 });
 
+test('bureau : recherche ouverte et fenêtres superposées', async () => {
+  for (const scheme of ['light', 'dark']) {
+    const ctx = await browser.newContext({ ...DESKTOP, colorScheme: scheme });
+    const page = await ctx.newPage();
+    await page.goto(base);
+    await page.click('#enter');
+    await page.waitForTimeout(600);
+    await page.click('.dock [data-app=parcours]');
+    await page.click('.dock [data-app=hobbies]');
+    assert.deepEqual(await violations(page), [], 'fenêtre inactive derrière, ' + scheme);
+    await page.keyboard.press('Control+k');
+    assert.deepEqual(await violations(page), [], 'recherche sans saisie, ' + scheme);
+    await page.fill('#spot-input', 'echecs');
+    assert.deepEqual(await violations(page), [], 'recherche filtrée, ' + scheme);
+    await page.fill('#spot-input', 'zzzzz');
+    assert.deepEqual(await violations(page), [], 'recherche sans résultat, ' + scheme);
+    await ctx.close();
+  }
+});
+
 test('version classique (mobile)', async () => {
   const ctx = await browser.newContext({ viewport: { width: 375, height: 740 } });
   const page = await ctx.newPage();
