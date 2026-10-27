@@ -83,3 +83,16 @@ test('hobbies : la carte Vibecoding propose les deux projets', async () => {
   assert.deepEqual(attrs, [['_blank', 'noopener', true], ['_blank', 'noopener', true]], 'nouvel onglet, noopener, et annoncé dans le nom du lien');
   await ctx.close();
 });
+
+test('contact (page classique) : mission longue, projets courts et lien de rendez-vous', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const text = await page.locator('#contact').innerText();
+  assert.match(text, /mission longue/);
+  assert.match(text, /courte durée/);
+  const [href, target, rel] = await page.$eval('#contact a.button', (a) => [a.href, a.target, a.rel]);
+  assert.deepEqual([href, target, rel], ['https://calendly.com/kangahmichael/new-meeting', '_blank', 'noopener']);
+  await ctx.close();
+});

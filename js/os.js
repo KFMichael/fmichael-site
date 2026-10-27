@@ -76,7 +76,7 @@
     widgets.innerHTML =
       '<button type="button" class="widget" data-app="dispo" aria-haspopup="dialog" aria-expanded="false">' +
         '<span class="w-dow"></span><span class="w-day"></span>' +
-        '<span class="w-note">En mission, indisponible</span>' +
+        '<span class="w-note">En mission longue, dispo pour des projets courts</span>' +
       '</button>' +
       '<button type="button" class="widget widget-cv" data-app="parcours" aria-haspopup="dialog" aria-expanded="false">' +
         '<span class="w-big">11 ans</span><span class="w-note">entre métier et tech, dont 6 chez Louis Vuitton</span>' +
@@ -187,9 +187,10 @@
 
   function buildDispo(body) {
     body.innerHTML =
-      '<p><strong>En mission, indisponible pour le moment.</strong></p>' +
-      '<p>Tu peux quand même m\'écrire pour une future collaboration.</p>' +
-      '<p><a class="button" href="mailto:k@fmichael.cloud?subject=Prise%20de%20contact">Prendre contact</a></p>';
+      '<p><strong>En mission longue, disponible pour des projets de courte durée.</strong></p>' +
+      '<p>Pour en discuter, réserve un créneau ou écris-moi.</p>' +
+      '<p><a class="button" href="https://calendly.com/kangahmichael/new-meeting" target="_blank" rel="noopener">Prendre rendez-vous <span class="visually-hidden">(s\'ouvre dans un nouvel onglet)</span></a></p>' +
+      '<p><a href="mailto:k@fmichael.cloud?subject=Prise%20de%20contact">Ou écrire un message</a></p>';
   }
 
   /* ---------- Fenêtres ---------- */
