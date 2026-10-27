@@ -73,3 +73,13 @@ test('version classique (mobile)', async () => {
   assert.deepEqual(await violations(page), []);
   await ctx.close();
 });
+
+for (const scheme of ['light', 'dark']) {
+  test('page 404, thème ' + scheme, async () => {
+    const ctx = await browser.newContext({ ...DESKTOP, colorScheme: scheme });
+    const page = await ctx.newPage();
+    await page.goto(base + '404.html');
+    assert.deepEqual(await violations(page), []);
+    await ctx.close();
+  });
+}
