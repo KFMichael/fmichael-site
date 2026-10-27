@@ -68,7 +68,7 @@ html.os-mode .site-footer { display: none; }
 
 .lock-date { font-size: 1.35rem; margin: 0; opacity: 0.92; }
 .lock-time { font-size: clamp(4.5rem, 11vw, 8rem); font-weight: 600; line-height: 1; margin: 0.2rem 0 0; letter-spacing: -0.02em; }
-.lock-name { margin: 1.25rem 0 0; font-size: 1.15rem; color: rgba(255, 255, 255, 0.85); max-width: none; }
+.lock-name { margin: 1.25rem 0 0; font-size: 1.15rem; color: rgba(255, 255, 255, 0.85); max-width: none; text-wrap: balance; }
 
 .notifs { list-style: none; margin: auto 0 1.5rem; padding: 0; width: min(26rem, 100%); display: grid; gap: 0.6rem; }
 .notif {
@@ -120,8 +120,10 @@ html.os-mode .site-footer { display: none; }
 .win {
   position: absolute; display: flex; flex-direction: column; overflow: hidden;
   width: min(42rem, 92vw); height: min(34rem, calc(100vh - 9rem));
-  background: var(--surface); color: var(--text); border: 1px solid var(--border);
-  border-radius: 0.8rem; box-shadow: var(--win-shadow);
+  background: color-mix(in srgb, var(--surface) 78%, transparent); color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+  border-radius: 0.8rem; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), var(--win-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
 }
 .win:focus { outline: none; }
 .win.active { border-color: var(--accent); }
@@ -129,7 +131,7 @@ html.os-mode .site-footer { display: none; }
 
 .titlebar {
   display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.75rem; min-height: 2.6rem;
-  background: color-mix(in srgb, var(--bg) 85%, var(--surface)); border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 55%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
   cursor: grab; user-select: none; touch-action: none;
 }
 .titlebar:active { cursor: grabbing; }
@@ -148,7 +150,7 @@ html.os-mode .site-footer { display: none; }
 .light.zoom svg { color: #06280e; }
 .win-title { margin: 0; font-size: 1rem; font-weight: 600; flex: 1; text-align: center; padding-right: 3.2rem; }
 
-.win-body { flex: 1; overflow: auto; padding: 1.25rem 1.5rem 1.5rem; overflow-wrap: anywhere; hyphens: auto; }
+.win-body { flex: 1; overflow: auto; padding: 1.25rem 1.5rem 1.5rem; overflow-wrap: anywhere; }
 .win-body:focus-visible { outline-offset: -4px; }
 .win-body .grid { grid-template-columns: 1fr; }
 .win-body .card { padding: 1.1rem; }
@@ -180,6 +182,14 @@ html.os-mode .site-footer { display: none; }
 }
 .dock-item:hover .tip, .dock-item:focus-visible .tip { opacity: 1; }
 .dock-item:focus-visible { outline-offset: 2px; }
+
+/* Reflet doux en haut de chaque icône : donne du volume sans changer les couleurs */
+.ico { position: relative; overflow: hidden; }
+.ico::before {
+  content: ""; position: absolute; inset: 0 0 48% 0; pointer-events: none; z-index: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0));
+}
+.ico > * { position: relative; z-index: 1; }
 
 .i-notes { background: linear-gradient(160deg, #f6c64f, #e8a01c); }
 .i-work { background: linear-gradient(160deg, #3b82f6, #1d4ed8); }
@@ -218,6 +228,7 @@ html.phone-mode #os {
   --separator: rgba(60, 60, 67, 0.29);
   --tint: #0061d5;             /* systemBlue (version accessible) */
   --red: #c1271c;              /* systemRed */
+  --red-text: #a02419;         /* rouge des petits textes sur verre : contraste ≥ 4,5:1 */
   --green: #1f8a3b;            /* systemGreen */
   --gray: #8e8e93;             /* systemGray */
   --bar-material: rgba(242, 242, 247, 0.85);
@@ -231,7 +242,7 @@ html.phone-mode #os {
 }
 :root[data-theme="dark"] #os {
   --bg: #000000; --bg-grouped: #1c1c1e; --label: #ffffff; --label-2: rgba(235, 235, 245, 0.72);
-  --separator: rgba(84, 84, 88, 0.6); --tint: #4da3ff; --red: #ff6b61; --green: #30d158; --bar-material: rgba(22, 22, 24, 0.85);
+  --separator: rgba(84, 84, 88, 0.6); --tint: #4da3ff; --red: #ff6b61; --red-text: #ff6b61; --green: #30d158; --bar-material: rgba(22, 22, 24, 0.85);
   --wall:
     radial-gradient(75% 50% at 15% 8%, #1f3f94 0%, transparent 70%),
     radial-gradient(65% 50% at 95% 38%, #5a2a88 0%, transparent 70%),
@@ -241,7 +252,7 @@ html.phone-mode #os {
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) #os {
     --bg: #000000; --bg-grouped: #1c1c1e; --label: #ffffff; --label-2: rgba(235, 235, 245, 0.72);
-    --separator: rgba(84, 84, 88, 0.6); --tint: #4da3ff; --red: #ff6b61; --green: #30d158; --bar-material: rgba(22, 22, 24, 0.85);
+    --separator: rgba(84, 84, 88, 0.6); --tint: #4da3ff; --red: #ff6b61; --red-text: #ff6b61; --green: #30d158; --bar-material: rgba(22, 22, 24, 0.85);
     --wall:
       radial-gradient(75% 50% at 15% 8%, #1f3f94 0%, transparent 70%),
       radial-gradient(65% 50% at 95% 38%, #5a2a88 0%, transparent 70%),
@@ -336,10 +347,14 @@ html.phone-mode .home {
 .widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)); gap: 0.75rem; margin: 0 0.25rem 1.5rem; }
 .widget {
   min-height: 9.5rem; display: flex; flex-direction: column; justify-content: flex-start; text-align: left;
-  padding: 0.85rem; border: 0; border-radius: 1.4rem; font: inherit;
-  background: var(--bg-grouped); color: var(--label); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); min-width: 0; overflow-wrap: anywhere;
+  padding: 0.85rem; border-radius: 1.4rem; font: inherit;
+  background: color-mix(in srgb, var(--bg-grouped) 72%, transparent); color: var(--label);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 4px 14px rgba(0, 0, 0, 0.18);
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+  min-width: 0; overflow-wrap: anywhere;
 }
-.w-dow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--red); }
+.w-dow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--red-text, var(--red)); }
 .w-day { font-size: 2.6rem; font-weight: 300; line-height: 1.05; }
 .w-big { font-size: 2.1rem; font-weight: 600; line-height: 1.1; }
 .w-note { margin-top: auto; font-size: 0.8125rem; line-height: 1.25; }
@@ -405,7 +420,7 @@ html.phone-mode .win::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(env(safe-area-inset-bottom) + 2.5rem); pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--bg) 70%);
 }
-.large-title { margin: 0 0 1rem; font-size: var(--fs-large-title, 2.125rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; max-width: none; overflow-wrap: anywhere; hyphens: auto; }
+.large-title { margin: 0 0 1rem; font-size: var(--fs-large-title, 2.125rem); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; max-width: none; overflow-wrap: anywhere; }
 html.phone-mode .win-body .card { background: var(--bg-grouped); border: 0; border-radius: 1.1rem; box-shadow: none; }
 html.phone-mode .win-body a { color: var(--tint); }
 
@@ -444,4 +459,28 @@ html.phone-mode .win-body .ios-list + .links, html.phone-mode .win-body .tags { 
   @keyframes push-in { from { transform: translateX(100%); } to { transform: none; } }
   @keyframes push-out { to { transform: translateX(100%); } }
   .ios-switch, .ios-switch::after { transition: background-color 180ms, left 180ms; }
+}
+
+/* ---------- Retouches du glass ---------- */
+/* Contour de focus visible sur les fonds colorés de l'accueil : clair, avec un liseré sombre */
+html.phone-mode .home :focus-visible {
+  outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+  border-radius: 0.9rem;
+}
+/* Retours à la ligne équilibrés : pas de mot seul sur la dernière ligne des textes courts */
+.large-title, .w-note, .n-body span, .hobby p, .ios-row-sub { text-wrap: balance; }
+.win-body p { text-wrap: pretty; }
+
+/* Moins de transparence demandée : fonds opaques, sans flou (bureau et téléphone) */
+@media (prefers-reduced-transparency: reduce) {
+  .win, .widget, .notif, .menubar, .dock, .lock-btn, #os .enter {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .win, .widget { background: var(--surface); }
+  .titlebar { background: var(--bg); }
+  .notif, .lock-btn, #os .enter, html.phone-mode .dock { background: #1b2a66; }
+}
+/* Contraste renforcé : contours pleins sur les surfaces en verre */
+@media (prefers-contrast: more) {
+  .win, .widget, .notif, .dock { border: 2px solid currentColor; }
 }

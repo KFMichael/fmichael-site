@@ -4,6 +4,7 @@
   <g fill="#fff" fill-opacity=".1">
     <rect x="80" y="90" width="150" height="150" rx="24"/><rect x="280" y="90" width="150" height="150" rx="24"/><rect x="770" y="660" width="150" height="150" rx="24"/><rect x="970" y="660" width="150" height="150" rx="24"/>
   </g>
+  <g transform="translate(600 300) scale(0.82) translate(-600 -420)">
   <g transform="translate(470 380) rotate(-14)">
     <rect x="-130" y="-130" width="260" height="260" rx="44" fill="#fff"/>
     <g fill="#111827"><circle cx="-62" cy="-62" r="24"/><circle cx="62" cy="-62" r="24"/><circle cy="0" r="24"/><circle cx="-62" cy="62" r="24"/><circle cx="62" cy="62" r="24"/></g>
@@ -18,4 +19,5 @@
   <g transform="translate(880 570)">
     <circle cy="-70" r="34" fill="#f472b6"/><path d="M-52 40C-52 -20 52 -20 52 40Z" fill="#f472b6"/><rect x="-62" y="38" width="124" height="22" rx="11" fill="#be185d"/>
   </g>
+</g>
 </svg>

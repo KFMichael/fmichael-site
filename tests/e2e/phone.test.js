@@ -196,3 +196,31 @@ test('taille de texte à 200 % : pas de défilement horizontal sur l\'accueil ni
   assert.deepEqual(await overflow(), [], 'liste Réalisations');
   await ctx.close();
 });
+
+test('glass : widgets et dock en verre dépoli, texte sans césure automatique', async () => {
+  const { ctx, page } = await open();
+  await unlock(page);
+  const style = (sel, prop) => page.evaluate(([s, p]) => getComputedStyle(document.querySelector(s))[p], [sel, prop]);
+  for (const sel of ['.widget', '.dock']) {
+    assert.notEqual(await style(sel, 'backdropFilter'), 'none', sel + ' : flou du verre');
+  }
+  await page.tap('#home [data-app=hobbies]');
+  assert.equal(await style('.win-body', 'hyphens'), 'manual', 'pas de mots coupés par la césure automatique');
+  assert.equal(await style('.win .hobby p', 'hyphens'), 'manual', 'ni dans les légendes des cartes');
+  await ctx.close();
+});
+
+test('glass : le contour de focus reste visible sur le fond coloré de l\'accueil', async () => {
+  const { ctx, page } = await open();
+  await unlock(page);
+  await page.keyboard.press('Tab');
+  const ring = await page.evaluate(() => {
+    const el = document.activeElement;
+    const cs = getComputedStyle(el);
+    return { inHome: !!el.closest('#home'), color: cs.outlineColor, width: cs.outlineWidth };
+  });
+  assert.equal(ring.inHome, true);
+  assert.equal(ring.color, 'rgb(255, 255, 255)');
+  assert.equal(ring.width, '3px');
+  await ctx.close();
+});
