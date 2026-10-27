@@ -80,6 +80,29 @@ test('bureau : fenêtre réduite et dock agrandi', async () => {
   await ctx.close();
 });
 
+test('bureau : menus de la barre ouverts', async () => {
+  for (const scheme of ['light', 'dark']) {
+    const ctx = await browser.newContext({ ...DESKTOP, colorScheme: scheme });
+    const page = await ctx.newPage();
+    await page.goto(base);
+    await page.click('#enter');
+    await page.waitForTimeout(600);
+    await page.click('#mb-brand-btn');
+    assert.deepEqual(await violations(page), [], 'menu à ton nom, ' + scheme);
+    await page.keyboard.press('Escape');
+    await page.click('.dock [data-app=parcours]');
+    await page.click('#mb-win-btn');
+    assert.deepEqual(await violations(page), [], 'menu Fenêtre, ' + scheme);
+    await page.keyboard.press('Escape');
+    await page.click('#mb-win-btn');
+    await page.keyboard.press('Escape');
+    await page.click('.win .light.close');
+    await page.click('#mb-win-btn');
+    assert.deepEqual(await violations(page), [], 'menu Fenêtre sans fenêtre, ' + scheme);
+    await ctx.close();
+  }
+});
+
 test('version classique (mobile)', async () => {
   const ctx = await browser.newContext({ viewport: { width: 375, height: 740 } });
   const page = await ctx.newPage();

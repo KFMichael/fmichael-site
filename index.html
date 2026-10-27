@@ -269,14 +269,28 @@
       <h1 class="visually-hidden">Bureau de Michaël Kangah</h1>
       <div class="menubar">
         <span class="mb-time" id="mb-time" aria-hidden="true"></span>
-        <div class="mb-left"><span class="mb-brand">Michaël Kangah</span><span class="mb-app" id="mb-app"></span></div>
-        <div class="mb-right">
-          <button type="button" class="mb-btn" id="os-theme" aria-pressed="false">Thème sombre</button>
-          <button type="button" class="mb-btn" data-action="fullscreen" aria-pressed="false" hidden>Plein écran</button>
-          <button type="button" class="mb-btn" data-action="classic">Version classique</button>
-          <button type="button" class="mb-btn" id="os-lock">Verrouiller</button>
-          <span class="mb-clock" id="mb-clock" aria-hidden="true"></span>
+        <div class="mb-left">
+          <div class="mb-menu">
+            <button type="button" class="mb-trigger mb-brand" id="mb-brand-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-brand">Michaël Kangah</button>
+            <ul class="menu" id="menu-brand" role="menu" aria-labelledby="mb-brand-btn" hidden>
+              <li role="none"><button type="button" role="menuitem" id="os-lock">Verrouiller l'écran</button></li>
+              <li role="none"><button type="button" role="menuitemcheckbox" id="os-theme" aria-checked="false">Thème sombre</button></li>
+              <li role="none"><button type="button" role="menuitemcheckbox" data-action="fullscreen" aria-checked="false" hidden>Plein écran</button></li>
+              <li role="separator"></li>
+              <li role="none"><button type="button" role="menuitem" data-action="classic">Version classique</button></li>
+            </ul>
+          </div>
+          <span class="mb-app" id="mb-app"></span>
+          <div class="mb-menu">
+            <button type="button" class="mb-trigger" id="mb-win-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-win">Fenêtre</button>
+            <ul class="menu" id="menu-win" role="menu" aria-labelledby="mb-win-btn" hidden>
+              <li role="none"><button type="button" role="menuitem" id="mw-close" aria-disabled="true">Fermer la fenêtre</button></li>
+              <li role="none"><button type="button" role="menuitem" id="mw-min" aria-disabled="true">Réduire</button></li>
+              <li role="none"><button type="button" role="menuitem" id="mw-zoom" aria-disabled="true">Agrandir la fenêtre</button></li>
+            </ul>
+          </div>
         </div>
+        <div class="mb-right"><span class="mb-clock" id="mb-clock" aria-hidden="true"></span></div>
       </div>
       <nav class="home" id="home" aria-label="Toutes les applications"><ul></ul></nav>
       <figure class="desk-photo">
