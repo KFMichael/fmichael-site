@@ -458,3 +458,194 @@ test('menus : absents en mode téléphone', async () => {
   assert.equal(await page.locator('#mb-brand-btn').isVisible(), false);
   await ctx.close();
 });
+
+const settle = (page) => page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+const optionTexts = (page) => page.$$eval('#spot-list [role=option]', (os) => os.map((o) => o.firstChild.textContent));
+
+test('recherche : s\'ouvre au bouton et à Ctrl+K, combobox + listbox accessibles, groupes', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  assert.equal(await page.locator('#spot').isVisible(), false);
+  assert.equal(await page.getAttribute('#mb-search', 'aria-haspopup'), 'dialog');
+  await page.click('#mb-search');
+  assert.equal(await page.locator('#spot').isVisible(), true);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'spot-input', 'le champ a le focus');
+  assert.equal(await page.getAttribute('#spot-input', 'role'), 'combobox');
+  assert.equal(await page.getAttribute('#spot-list', 'role'), 'listbox');
+  assert.equal(await page.getAttribute('#mb-search', 'aria-expanded'), 'true');
+  const groups = await page.$$eval('.spot-group-label', (els) => els.map((e) => e.textContent));
+  assert.deepEqual(groups, ['Applications', 'Actions', 'Liens']);
+  assert.ok((await optionTexts(page)).length >= 12, 'sans saisie : tout est listé');
+  assert.equal(await page.$eval('#spot-opt-0', (o) => o.getAttribute('aria-selected')), 'true');
+  assert.equal(await page.getAttribute('#spot-input', 'aria-activedescendant'), 'spot-opt-0');
+  await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#spot').isVisible(), false, 'Ctrl+K referme');
+  await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#spot').isVisible(), true, 'Ctrl+K ouvre');
+  await ctx.close();
+});
+
+test('recherche : filtrer, naviguer aux flèches (avec bouclage) et ouvrir avec Entrée', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.keyboard.press('Control+k');
+  await page.keyboard.type('realisa');
+  assert.deepEqual(await optionTexts(page), ['Réalisations']);
+  assert.equal(await page.textContent('#spot-status'), '1 résultat');
+  await page.fill('#spot-input', 'echecs');
+  assert.deepEqual(await optionTexts(page), ['Hobbies', 'Apprendre à jouer aux échecs'], 'les groupes gardent leur ordre : applications, actions, liens');
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await page.getAttribute('#spot-input', 'aria-activedescendant'), 'spot-opt-1');
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await page.getAttribute('#spot-input', 'aria-activedescendant'), 'spot-opt-0', 'la sélection boucle');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await page.getAttribute('#spot-input', 'aria-activedescendant'), 'spot-opt-1', 'et boucle en remontant');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.win[data-app=hobbies]');
+  assert.equal(await page.locator('#spot').isVisible(), false);
+  assert.equal(await page.locator('.mb-app').textContent(), 'Hobbies');
+  assert.equal(await page.evaluate(() => document.querySelector('.dock').inert), false, 'le bureau n\'est plus inerte');
+  await ctx.close();
+});
+
+test('recherche : aucun résultat, Échap rend le focus, clic à côté ferme', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('#mb-search');
+  await page.fill('#spot-input', 'zzzzz');
+  assert.equal(await page.locator('#spot-empty').isVisible(), true);
+  assert.equal(await page.textContent('#spot-status'), 'Aucun résultat');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.win').count(), 0, 'Entrée ne fait rien sans résultat');
+  assert.equal(await page.locator('#spot').isVisible(), true);
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#spot').isVisible(), false);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-search', 'le focus revient au bouton');
+  await page.click('#mb-search');
+  assert.equal(await page.evaluate(() => document.querySelector('.menubar').inert), true, 'le reste est inerte pendant la recherche');
+  await page.mouse.click(60, 600);
+  assert.equal(await page.locator('#spot').isVisible(), false, 'un clic à côté ferme');
+  await ctx.close();
+});
+
+test('recherche : actions (thème) et liens (nouvel onglet, noopener)', async () => {
+  const ctx = await site.browser.newContext({ ...DESKTOP, colorScheme: 'light' });
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.keyboard.press('Control+k');
+  await page.fill('#spot-input', 'sombre');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-theme')), 'dark');
+  await page.evaluate(() => {
+    window.__opened = [];
+    HTMLAnchorElement.prototype.click = function () { window.__opened.push([this.href, this.target, this.rel]); };
+  });
+  await page.keyboard.press('Control+k');
+  await page.fill('#spot-input', 'calendly');
+  await page.keyboard.press('Enter');
+  assert.deepEqual(await page.evaluate(() => window.__opened), [['https://calendly.com/kangahmichael/new-meeting', '_blank', 'noopener']]);
+  assert.equal(await page.locator('#spot').isVisible(), false);
+  await ctx.close();
+});
+
+test('recherche : inactive sur l\'écran verrouillé et en mode téléphone', async () => {
+  let ctx = await site.browser.newContext(DESKTOP);
+  let page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#spot').isVisible(), false, 'rien sur l\'écran verrouillé');
+  await ctx.close();
+  ctx = await site.browser.newContext({ viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true });
+  page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.tap('#enter');
+  await page.waitForTimeout(600);
+  await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#spot').isVisible(), false);
+  assert.equal(await page.locator('#mb-search').isVisible(), false);
+  await ctx.close();
+});
+
+test('fenêtres : un clic sur une fenêtre de derrière la met au premier plan, la voisine devient inactive', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('.dock [data-app=parcours]');
+  await page.click('.dock [data-app=travail]');
+  await page.click('.dock [data-app=hobbies]');
+  await settle(page);
+  const first = page.locator('.win[data-app=parcours]');
+  const last = page.locator('.win[data-app=hobbies]');
+  assert.equal(await last.evaluate((el) => el.classList.contains('active')), true);
+  const light = (loc) => loc.locator('.light.close').evaluate((el) => getComputedStyle(el, '::before').backgroundColor);
+  assert.equal(await light(last), 'rgb(255, 95, 87)', 'fenêtre active : bouton rouge');
+  assert.notEqual(await light(first), 'rgb(255, 95, 87)', 'fenêtre inactive : bouton grisé');
+  const box = await first.boundingBox();
+  await page.mouse.click(box.x + box.width / 2, box.y + 12); // bande de la barre de titre que les fenêtres suivantes ne recouvrent pas
+  assert.equal(await first.evaluate((el) => el.classList.contains('active')), true);
+  assert.equal(await last.evaluate((el) => el.classList.contains('active')), false);
+  const z = (loc) => loc.evaluate((el) => Number(el.style.zIndex));
+  assert.ok((await z(first)) > (await z(last)), 'au premier plan');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours');
+  assert.equal(await light(first), 'rgb(255, 95, 87)');
+  await ctx.close();
+});
+
+test('fenêtres : redimensionner par le coin, taille minimale et limite du bureau', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('.dock [data-app=parcours]');
+  await settle(page);
+  const win = page.locator('.win');
+  const size = async () => { const b = await win.boundingBox(); return [Math.round(b.width), Math.round(b.height)]; };
+  const [w0, h0] = await size();
+  const handle = await page.locator('.win .rs-se').boundingBox();
+  const hx = handle.x + handle.width / 2, hy = handle.y + handle.height / 2;
+  await page.mouse.move(hx, hy);
+  await page.mouse.down();
+  await page.mouse.move(hx + 120, hy + 60, { steps: 4 });
+  await page.mouse.up();
+  const [w1, h1] = await size();
+  assert.ok(Math.abs(w1 - (w0 + 120)) <= 2 && Math.abs(h1 - (h0 + 60)) <= 2, 'plus grande de 120 × 60 (' + w1 + '×' + h1 + ')');
+  const h2 = await page.locator('.win .rs-se').boundingBox();
+  await page.mouse.move(h2.x + 7, h2.y + 7);
+  await page.mouse.down();
+  await page.mouse.move(0, 0, { steps: 4 });
+  await page.mouse.up();
+  const [w2, h2s] = await size();
+  assert.equal(w2, 352, 'largeur minimale 22 rem');
+  assert.equal(h2s, 224, 'hauteur minimale 14 rem');
+  const left = await win.evaluate((el) => el.offsetLeft);
+  const h3 = await page.locator('.win .rs-se').boundingBox();
+  await page.mouse.move(h3.x + 7, h3.y + 7);
+  await page.mouse.down();
+  await page.mouse.move(1430, 890, { steps: 4 });
+  await page.mouse.up();
+  const [w3] = await size();
+  assert.ok(w3 <= 1440 - left, 'ne dépasse pas le bureau (' + w3 + ')');
+  await ctx.close();
+});
+
+test('fenêtres : redimensionner au clavier (Alt + Maj + flèches), poignées cachées quand agrandie', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('.dock [data-app=travail]');
+  await settle(page);
+  const win = page.locator('.win');
+  const w0 = (await win.boundingBox()).width;
+  await win.focus();
+  await page.keyboard.press('Alt+Shift+ArrowRight');
+  assert.equal(Math.round((await win.boundingBox()).width), Math.round(w0 + 24));
+  await page.keyboard.press('Alt+Shift+ArrowLeft');
+  await page.keyboard.press('Alt+Shift+ArrowLeft');
+  assert.equal(Math.round((await win.boundingBox()).width), Math.round(w0 - 24));
+  await page.click('.win .light.zoom');
+  assert.equal(await page.locator('.win .rs-se').isVisible(), false, 'pas de poignée quand la fenêtre est agrandie');
+  await ctx.close();
+});

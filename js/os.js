@@ -313,6 +313,7 @@
       win.addEventListener('pointerdown', function () { setActive(win); });
       win.addEventListener('focusin', function () { if (!win.classList.contains('active')) setActive(win); });
       enableDrag(win);
+      enableResize(win);
     }
 
     setActive(win);
@@ -462,6 +463,45 @@
     else { histDepth = 0; closeApp(ids[0], true); }
   });
 
+  /* Redimensionner : bords droit et bas et coin, à la souris ; Alt + Maj + flèches au clavier. Taille minimale 22 × 14 rem, jamais au-delà du bureau. */
+  function resizeWin(win, w, h) {
+    var rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    var maxW = layer.clientWidth - win.offsetLeft;
+    var maxH = layer.clientHeight - win.offsetTop;
+    win.style.width = Math.max(Math.min(22 * rem, maxW), Math.min(w, maxW)) + 'px';
+    win.style.height = Math.max(Math.min(14 * rem, maxH), Math.min(h, maxH)) + 'px';
+  }
+
+  function enableResize(win) {
+    ['rs-e', 'rs-s', 'rs-se'].forEach(function (cls) {
+      var h = document.createElement('div');
+      h.className = 'resize ' + cls;
+      h.setAttribute('aria-hidden', 'true');
+      win.appendChild(h);
+      var sx, sy, sw, sh, on = false;
+      h.addEventListener('pointerdown', function (e) {
+        if (win.classList.contains('max')) return;
+        on = true; sx = e.clientX; sy = e.clientY; sw = win.offsetWidth; sh = win.offsetHeight;
+        h.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      h.addEventListener('pointermove', function (e) {
+        if (!on) return;
+        resizeWin(win, cls === 'rs-s' ? sw : sw + e.clientX - sx, cls === 'rs-e' ? sh : sh + e.clientY - sy);
+      });
+      var stop = function () { on = false; };
+      h.addEventListener('pointerup', stop);
+      h.addEventListener('pointercancel', stop);
+    });
+    win.addEventListener('keydown', function (e) {
+      if (!(e.altKey && e.shiftKey) || win.classList.contains('max') || e.target.closest('input, textarea')) return;
+      var d = { ArrowRight: [24, 0], ArrowLeft: [-24, 0], ArrowDown: [0, 24], ArrowUp: [0, -24] }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      resizeWin(win, win.offsetWidth + d[0], win.offsetHeight + d[1]);
+    });
+  }
+
   function enableDrag(win) {
     var bar = win.querySelector('.titlebar');
     var startX, startY, baseLeft, baseTop, dragging = false;
@@ -487,6 +527,7 @@
   /* ---------- Écran verrouillé / bureau ---------- */
   function showLock() {
     closeMenus(false);
+    spotClose(false);
     lock.hidden = false;
     lock.inert = false;
     lock.classList.remove('leaving');
@@ -604,6 +645,151 @@
     });
   }
 
+  /* Recherche (Ctrl+K ou Cmd+K, ou l'icône de la barre) : applications, actions, liens. Combobox + listbox, flèches, Entrée, Échap. */
+  var spot = document.getElementById('spot');
+  var spotInput = document.getElementById('spot-input');
+  var spotList = document.getElementById('spot-list');
+  var spotEmpty = document.getElementById('spot-empty');
+  var spotStatus = document.getElementById('spot-status');
+  var spotBtn = document.getElementById('mb-search');
+  var spotReturn = null, spotShown = [], spotActive = 0;
+  var SPOT_INERT = ['.menubar', '.dock', '#win-layer', '.desk-widgets', '.desk-photo'];
+  var SPOT_GROUPS = ['Applications', 'Actions', 'Liens'];
+  var LINK_NOTE = 'nouvel onglet';
+
+  function spotEntries() {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    var fs = document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran';
+    var list = [
+      { group: 'Applications', label: 'Parcours', hint: 'CV et expériences', keywords: 'cv formation louis vuitton davidson wemanity omnilog', run: function () { openApp('parcours'); } },
+      { group: 'Applications', label: 'Réalisations', hint: 'Études de cas', keywords: 'shopify boutiques e-commerce portfolio', run: function () { openApp('travail'); } },
+      { group: 'Applications', label: 'Disponibilité', hint: 'En mission longue, projets courts', keywords: 'mission freelance rendez-vous', run: function () { openApp('dispo'); } },
+      { group: 'Applications', label: 'Hobbies', hint: 'Vibecoding, tennis, football, jeux, voyage', keywords: 'echecs budget', run: function () { openApp('hobbies'); } },
+      { group: 'Applications', label: 'Contact', hint: 'E-mail, LinkedIn, GitHub', keywords: 'mail email', run: function () { openApp('contact'); } },
+      { group: 'Actions', label: 'Verrouiller l\'écran', hint: '', keywords: 'ecran verrouillage', run: function () { document.getElementById('os-lock').click(); } },
+      { group: 'Actions', label: dark ? 'Passer au thème clair' : 'Passer au thème sombre', hint: '', keywords: 'theme sombre clair apparence', run: function () { themeBtn.click(); } },
+      { group: 'Actions', label: 'Version classique', hint: 'Page simple', keywords: 'classique page simple', run: function () { os.querySelector('#menu-brand [data-action="classic"]').click(); } },
+      { group: 'Liens', label: 'Prendre rendez-vous', hint: 'Calendly, ' + LINK_NOTE, keywords: 'calendly disponibilite reunion', url: 'https://calendly.com/kangahmichael/new-meeting' },
+      { group: 'Liens', label: 'LinkedIn', hint: LINK_NOTE, keywords: 'profil reseau', url: 'https://www.linkedin.com/in/kangahmichael/' },
+      { group: 'Liens', label: 'GitHub', hint: LINK_NOTE, keywords: 'code profil', url: 'https://github.com/KFMichael' },
+      { group: 'Liens', label: 'Apprendre à jouer aux échecs', hint: 'Vibecoding, ' + LINK_NOTE, keywords: 'projet', url: 'https://echecs.fmichael.cloud/' },
+      { group: 'Liens', label: 'Apprendre à gérer son budget', hint: 'Vibecoding, ' + LINK_NOTE, keywords: 'projet patrimoine', url: 'https://monpatrimoine.fmichael.cloud/' }
+    ];
+    if (document.fullscreenEnabled) list.splice(8, 0, { group: 'Actions', label: fs, hint: '', keywords: 'fullscreen ecran', run: function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); } });
+    return list;
+  }
+
+  function spotRender() {
+    var found = OsUtils.searchEntries(spotInput.value, spotEntries());
+    spotShown = [];
+    spotList.textContent = '';
+    SPOT_GROUPS.forEach(function (g, gi) {
+      var items = found.filter(function (e) { return e.group === g; });
+      if (!items.length) return;
+      var group = document.createElement('div');
+      group.className = 'spot-group';
+      group.setAttribute('role', 'group');
+      group.setAttribute('aria-labelledby', 'spot-g' + gi);
+      var label = document.createElement('div');
+      label.className = 'spot-group-label';
+      label.id = 'spot-g' + gi;
+      label.textContent = g;
+      group.appendChild(label);
+      items.forEach(function (entry) {
+        var opt = document.createElement('div');
+        opt.className = 'spot-opt';
+        opt.id = 'spot-opt-' + spotShown.length;
+        opt.setAttribute('role', 'option');
+        var name = document.createElement('span');
+        name.textContent = entry.label;
+        opt.appendChild(name);
+        if (entry.hint) {
+          var hint = document.createElement('span');
+          hint.className = 'spot-opt-hint';
+          hint.textContent = entry.hint;
+          opt.appendChild(hint);
+        }
+        var n = spotShown.length;
+        opt.addEventListener('mousemove', function () { if (spotActive !== n) spotSelect(n); });
+        opt.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        opt.addEventListener('click', function () { spotRun(entry); });
+        group.appendChild(opt);
+        spotShown.push(entry);
+      });
+      spotList.appendChild(group);
+    });
+    spotEmpty.hidden = spotShown.length > 0;
+    spotStatus.textContent = spotShown.length ? spotShown.length + (spotShown.length > 1 ? ' résultats' : ' résultat') : 'Aucun résultat';
+    spotSelect(0);
+  }
+
+  function spotSelect(n) {
+    spotActive = n;
+    Array.prototype.forEach.call(spotList.querySelectorAll('[role="option"]'), function (o, i) {
+      o.setAttribute('aria-selected', i === n ? 'true' : 'false');
+      if (i === n) o.scrollIntoView({ block: 'nearest' });
+    });
+    spotInput.setAttribute('aria-activedescendant', spotShown.length ? 'spot-opt-' + n : '');
+  }
+
+  function spotOpen() {
+    if (!spot.hidden || isPhone() || os.hidden || !lock.hidden) return;
+    closeMenus(false);
+    spotReturn = document.activeElement;
+    SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = true; });
+    spot.hidden = false;
+    spotBtn.setAttribute('aria-expanded', 'true');
+    spotInput.value = '';
+    spotRender();
+    spotInput.focus();
+  }
+
+  function spotClose(restoreFocus) {
+    if (spot.hidden) return;
+    spot.hidden = true;
+    spotBtn.setAttribute('aria-expanded', 'false');
+    SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = false; });
+    if (restoreFocus) {
+      var back = spotReturn && spotReturn.isConnected && !spotReturn.closest('[inert]') ? spotReturn : spotBtn;
+      back.focus();
+    }
+  }
+
+  function spotRun(entry) {
+    spotClose(false);
+    opener = null;
+    if (entry.url) {
+      var a = document.createElement('a');
+      a.href = entry.url; a.target = '_blank'; a.rel = 'noopener';
+      a.click();
+    } else {
+      entry.run();
+    }
+    var a2 = document.activeElement;
+    if (!a2 || a2 === document.body || spot.contains(a2)) (spotReturn && spotReturn.isConnected ? spotReturn : spotBtn).focus();
+  }
+
+  function initSpot() {
+    spotBtn.addEventListener('click', function () { if (spot.hidden) spotOpen(); else spotClose(true); });
+    document.getElementById('spot-backdrop').addEventListener('pointerdown', function () { spotClose(true); });
+    spotInput.addEventListener('input', spotRender);
+    spot.addEventListener('keydown', function (e) {
+      var n = spotShown.length;
+      if (e.key === 'ArrowDown' && n) { e.preventDefault(); spotSelect((spotActive + 1) % n); }
+      else if (e.key === 'ArrowUp' && n) { e.preventDefault(); spotSelect((spotActive - 1 + n) % n); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (spotShown[spotActive]) spotRun(spotShown[spotActive]); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); spotClose(true); }
+      else if (e.key === 'Tab') e.preventDefault();
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'k') {
+        if (isPhone() || os.hidden || !lock.hidden) return;
+        e.preventDefault();
+        if (spot.hidden) spotOpen(); else spotClose(true);
+      }
+    });
+  }
+
   /* Dock qui grossit au survol (souris seulement, coupé si les animations sont réduites).
      Chaque icône est mise à l'échelle par transform et décalée pour rester centrée : la mise en page ne bouge pas. */
   function initDockMagnify() {
@@ -717,6 +903,7 @@
     initFullscreen();
     initDockMagnify();
     initMenus();
+    initSpot();
     document.getElementById('os-lock').addEventListener('click', showLock);
     themeBtn.addEventListener('click', function () {
       document.getElementById('theme-toggle').click();
@@ -736,6 +923,7 @@
 
   function disable(focusMain) {
     closeMenus(false);
+    spotClose(false);
     closeAll();
     root.classList.remove('os-mode', 'phone-mode');
     os.hidden = true;

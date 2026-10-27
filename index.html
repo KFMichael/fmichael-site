@@ -290,7 +290,10 @@
             </ul>
           </div>
         </div>
-        <div class="mb-right"><span class="mb-clock" id="mb-clock" aria-hidden="true"></span></div>
+        <div class="mb-right">
+          <button type="button" class="mb-icon" id="mb-search" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Control+K Meta+K" aria-label="Rechercher (Ctrl+K)" title="Rechercher (Ctrl+K)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+          <span class="mb-clock" id="mb-clock" aria-hidden="true"></span>
+        </div>
       </div>
       <nav class="home" id="home" aria-label="Toutes les applications"><ul></ul></nav>
       <figure class="desk-photo">
@@ -314,6 +317,18 @@
         </div>
       </div>
       <div class="win-layer" id="win-layer"></div>
+      <div class="spot" id="spot" hidden>
+        <div class="spot-backdrop" id="spot-backdrop"></div>
+        <div class="spot-panel" role="dialog" aria-label="Recherche">
+          <div class="spot-field">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+            <input type="text" id="spot-input" role="combobox" aria-expanded="true" aria-controls="spot-list" aria-autocomplete="list" aria-activedescendant="" aria-label="Rechercher une application, une action ou un lien" placeholder="Rechercher une application, une action, un lien" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="spot-list" id="spot-list" role="listbox" aria-label="Résultats"></div>
+          <p class="spot-empty" id="spot-empty" hidden>Aucun résultat.</p>
+          <p class="visually-hidden" id="spot-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
       <button type="button" class="home-indicator" id="home-ind" aria-label="Revenir à l'accueil" hidden></button>
       <nav class="dock" aria-label="Raccourcis">
         <button type="button" class="dock-item" data-app="parcours" aria-haspopup="dialog" aria-expanded="false"><span class="ico i-notes" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/></svg></span><span class="tip">Parcours</span></button>
