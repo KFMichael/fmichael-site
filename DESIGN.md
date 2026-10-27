@@ -101,3 +101,10 @@ Le bureau suit une **identité macOS** (décision de Michaël) et le téléphone
 - **Interdit** : SF Symbols, police SF Pro hébergée ou distribuée, logos et marques Apple, noms « iOS », « iPhone » ou « Apple » dans l'interface (la seule mention factuelle, « sur iOS et Android » dans une réalisation, décrit un livrable réel), logos de marques tierces, faux horodatages.
 - **Autorisé** : icônes SVG dessinées maison, polices système appelées par leur nom, conventions des Human Interface Guidelines.
 - Le site doit garder une identité propre (nom, couleurs, contenu) et ne pas passer pour un produit Apple.
+
+## Directions testées et abandonnées
+- **Design éditorial** (angles droits, aplats de couleur, titres en empattement, listes séparées par des filets, ni verre ni dégradés), testé le 26 octobre 2026 puis **refusé par Michaël** : ne pas le reproposer. Pour le retrouver :
+  - commit du restyle : `cc0d0f9b679f51d206946cf0109e9bc75b482299` ;
+  - tête de la branche `design-editorial` : `f17fda6` (elle ajoute au restyle quelques correctifs déjà repris dans `main`) ;
+  - la PR #23, fermée sans fusion, garde ce code même si la branche est supprimée : `git fetch origin refs/pull/23/head` puis `git show cc0d0f9`.
+  Les autres commits de cette branche sont déjà dans `main` (PR #24, sans le restyle).
