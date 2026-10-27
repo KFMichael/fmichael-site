@@ -38,6 +38,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - **Priorité d'expérience (Michaël) : la séquence des notifications** de l'écran verrouillé. Elles arrivent une à une (fondu et glissement), une seule fois, en moins de 5 s au total, sans faire bouger la mise en page ; tout est visible tout de suite si `prefers-reduced-motion` est demandé. Pas de boucle automatique.
 - Fond d'écran : dégradé abstrait en attendant les photos de Michaël (emplacements `--lock-photo` / `--desk-photo` dans `css/os.css`, mode d'emploi dans `DESIGN.md`).
 - Fenêtres : boutons rouge (fermer), jaune (réduire dans le dock : point sous l'icône, un clic la rouvre) et vert (agrandir), double-clic sur la barre de titre pour agrandir ou restaurer. Dock qui grossit au survol (souris seulement, coupé si `prefers-reduced-motion`, la mise en page ne bouge pas).
+- Barre de menus : menu à ton nom (Verrouiller l'écran, Thème, Plein écran, Version classique), nom de l'application active, menu « Fenêtre » (Fermer, Réduire, Agrandir ou Restaurer, désactivés sans fenêtre). Motif WAI-ARIA « menu button » : flèches, Début/Fin, Échap (rend le focus au bouton), Entrée, flèches gauche/droite et survol pour passer d'un menu à l'autre.
 - Plein écran du navigateur : proposé par un bouton « Plein écran » (Échap en sort), jamais imposé.
 - Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
 - Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.

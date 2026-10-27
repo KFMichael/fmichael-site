@@ -486,6 +486,7 @@
 
   /* ---------- Écran verrouillé / bureau ---------- */
   function showLock() {
+    closeMenus(false);
     lock.hidden = false;
     lock.inert = false;
     lock.classList.remove('leaving');
@@ -510,7 +511,97 @@
   function syncTheme() {
     var dark = root.getAttribute('data-theme') === 'dark';
     themeBtn.textContent = dark ? 'Thème clair' : 'Thème sombre';
-    themeBtn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    themeBtn.setAttribute('aria-checked', dark ? 'true' : 'false');
+  }
+
+  /* Menus déroulants de la barre de menus (motif « menu button » : flèches, Début/Fin, Échap, Entrée, survol pour passer d'un menu à l'autre) */
+  var menuTriggers = [];
+  function menuOf(trigger) { return document.getElementById(trigger.getAttribute('aria-controls')); }
+  function menuItems(menu) {
+    return Array.prototype.slice.call(menu.querySelectorAll('[role^="menuitem"]')).filter(function (i) { return !i.hidden; });
+  }
+  function activeWinId() {
+    return Object.keys(openWins).filter(function (k) { return openWins[k].classList.contains('active'); })[0] || null;
+  }
+  function syncWindowMenu() {
+    var id = activeWinId();
+    var win = id ? openWins[id] : null;
+    ['mw-close', 'mw-min', 'mw-zoom'].forEach(function (k) {
+      document.getElementById(k).setAttribute('aria-disabled', win ? 'false' : 'true');
+    });
+    document.getElementById('mw-zoom').textContent = win && win.classList.contains('max') ? 'Restaurer la fenêtre' : 'Agrandir la fenêtre';
+  }
+  function closeMenus(returnFocus) {
+    menuTriggers.forEach(function (t) {
+      if (t.getAttribute('aria-expanded') !== 'true') return;
+      t.setAttribute('aria-expanded', 'false');
+      menuOf(t).hidden = true;
+      if (returnFocus) t.focus();
+    });
+  }
+  function openMenu(trigger, which) {
+    closeMenus(false);
+    var menu = menuOf(trigger);
+    if (menu.id === 'menu-win') syncWindowMenu();
+    menu.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    var items = menuItems(menu);
+    var target = which === 'last' ? items[items.length - 1] : items[0];
+    if (target) target.focus();
+  }
+  function initMenus() {
+    menuTriggers = Array.prototype.slice.call(os.querySelectorAll('.mb-trigger'));
+    menuTriggers.forEach(function (t, i) {
+      t.addEventListener('click', function () {
+        if (t.getAttribute('aria-expanded') === 'true') closeMenus(true); else openMenu(t);
+      });
+      t.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); openMenu(t); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); openMenu(t, 'last'); }
+      });
+      t.addEventListener('pointerenter', function (e) {
+        if (e.pointerType === 'mouse' && menuTriggers.some(function (o) { return o !== t && o.getAttribute('aria-expanded') === 'true'; })) openMenu(t);
+      });
+      var menu = menuOf(t);
+      menu.addEventListener('keydown', function (e) {
+        var items = menuItems(menu);
+        var at = items.indexOf(document.activeElement);
+        var move = function (n) { e.preventDefault(); items[(n + items.length) % items.length].focus(); };
+        if (e.key === 'ArrowDown') move(at + 1);
+        else if (e.key === 'ArrowUp') move(at - 1);
+        else if (e.key === 'Home') move(0);
+        else if (e.key === 'End') move(items.length - 1);
+        else if (e.key === 'ArrowRight') { e.preventDefault(); openMenu(menuTriggers[(i + 1) % menuTriggers.length]); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); openMenu(menuTriggers[(i - 1 + menuTriggers.length) % menuTriggers.length]); }
+        else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeMenus(true); }
+        else if (e.key === 'Tab') closeMenus(false);
+      });
+      // Après une action : le menu se ferme ; si le focus n'est allé nulle part, il revient au bouton du menu
+      menu.addEventListener('click', function (e) {
+        var item = e.target.closest('[role^="menuitem"]');
+        if (!item || item.getAttribute('aria-disabled') === 'true') return;
+        closeMenus(false);
+        var a = document.activeElement;
+        if (!a || a === document.body || menu.contains(a)) t.focus();
+      });
+    });
+    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.mb-menu')) closeMenus(false); });
+    os.querySelector('.mb-left').addEventListener('focusout', function (e) {
+      if (e.relatedTarget && !e.relatedTarget.closest('.mb-menu')) closeMenus(false);
+    });
+
+    document.getElementById('mw-close').addEventListener('click', function () {
+      var id = activeWinId();
+      if (id) closeApp(id, true);
+    });
+    document.getElementById('mw-min').addEventListener('click', function () {
+      var id = activeWinId();
+      if (id) minimizeApp(id);
+    });
+    document.getElementById('mw-zoom').addEventListener('click', function () {
+      var id = activeWinId();
+      if (id) openWins[id].querySelector('.zoom').click();
+    });
   }
 
   /* Dock qui grossit au survol (souris seulement, coupé si les animations sont réduites).
@@ -563,7 +654,7 @@
       Array.prototype.forEach.call(buttons, function (b) {
         b.hidden = false;
         b.textContent = on ? 'Quitter le plein écran' : 'Plein écran';
-        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        b.setAttribute(b.getAttribute('role') === 'menuitemcheckbox' ? 'aria-checked' : 'aria-pressed', on ? 'true' : 'false');
       });
     }
     Array.prototype.forEach.call(buttons, function (b) {
@@ -625,6 +716,7 @@
     });
     initFullscreen();
     initDockMagnify();
+    initMenus();
     document.getElementById('os-lock').addEventListener('click', showLock);
     themeBtn.addEventListener('click', function () {
       document.getElementById('theme-toggle').click();
@@ -643,6 +735,7 @@
   }
 
   function disable(focusMain) {
+    closeMenus(false);
     closeAll();
     root.classList.remove('os-mode', 'phone-mode');
     os.hidden = true;

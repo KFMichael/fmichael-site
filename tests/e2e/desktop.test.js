@@ -44,7 +44,8 @@ test('version classique : mémorisée, et la page classique n\'est pas masquée'
   const page = await ctx.newPage();
   await page.goto(site.base);
   await page.click('#enter');
-  await page.click('.menubar [data-action=classic]');
+  await page.click('#mb-brand-btn');
+  await page.click('#menu-brand [data-action=classic]');
   assert.equal(await classes(page), '');
   assert.equal(await page.locator('main').isVisible(), true);
   await page.reload();
@@ -360,5 +361,100 @@ test('dock : pas de grossissement avec mouvement réduit', async () => {
   await page.mouse.move(first.x + first.width / 2 + 2, first.y + first.height / 2);
   await page.waitForTimeout(150);
   assert.equal(await page.evaluate(() => document.querySelector('.dock').classList.contains('mag')), false);
+  await ctx.close();
+});
+
+test('menus : le menu à ton nom s\'ouvre au clavier, flèches / Début / Fin / Échap, focus rendu au bouton', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  const trigger = page.locator('#mb-brand-btn');
+  assert.equal(await trigger.getAttribute('aria-haspopup'), 'menu');
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+  assert.equal(await page.locator('#menu-brand').isVisible(), false);
+  await trigger.focus();
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
+  const focused = () => page.evaluate(() => document.activeElement.textContent.trim());
+  assert.equal(await focused(), 'Verrouiller l\'écran');
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await focused(), 'Thème sombre');
+  await page.keyboard.press('End');
+  assert.equal(await focused(), 'Version classique');
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await focused(), 'Verrouiller l\'écran', 'la navigation boucle');
+  await page.keyboard.press('Home');
+  assert.equal(await focused(), 'Verrouiller l\'écran');
+  await page.keyboard.press('Escape');
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-brand-btn', 'le focus revient au bouton du menu');
+  await ctx.close();
+});
+
+test('menus : thème, verrouillage et version classique depuis le menu', async () => {
+  const ctx = await site.browser.newContext({ ...DESKTOP, colorScheme: 'light' });
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('#mb-brand-btn');
+  assert.equal(await page.getAttribute('#os-theme', 'aria-checked'), 'false');
+  await page.click('#os-theme');
+  assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-theme')), 'dark');
+  assert.equal(await page.locator('#menu-brand').isVisible(), false, 'le menu se ferme après l\'action');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-brand-btn', 'focus rendu au bouton du menu');
+  await page.click('#mb-brand-btn');
+  assert.equal(await page.getAttribute('#os-theme', 'aria-checked'), 'true');
+  assert.equal(await page.textContent('#os-theme'), 'Thème clair');
+  await page.click('#os-lock');
+  await page.waitForSelector('#lock', { state: 'visible' });
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'enter', 'le verrouillage garde le focus sur « Entrer »');
+  await ctx.close();
+});
+
+test('menu Fenêtre : désactivé sans fenêtre, puis réduire, agrandir et fermer la fenêtre active', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('#mb-win-btn');
+  assert.equal(await page.getAttribute('#mw-close', 'aria-disabled'), 'true');
+  await page.click('#mw-close', { force: true });
+  assert.equal(await page.locator('#menu-win').isVisible(), true, 'une action désactivée ne ferme pas le menu');
+  await page.keyboard.press('Escape');
+  await page.click('.dock [data-app=parcours]');
+  await page.click('#mb-win-btn');
+  assert.equal(await page.getAttribute('#mw-close', 'aria-disabled'), 'false');
+  assert.equal(await page.textContent('#mw-zoom'), 'Agrandir la fenêtre');
+  await page.click('#mw-zoom');
+  assert.equal(await page.locator('.win').evaluate((el) => el.classList.contains('max')), true);
+  await page.click('#mb-win-btn');
+  assert.equal(await page.textContent('#mw-zoom'), 'Restaurer la fenêtre');
+  await page.click('#mw-min');
+  await page.waitForSelector('.win.minimized', { state: 'attached' });
+  await page.click('.dock [data-app=parcours]');
+  await page.click('#mb-win-btn');
+  await page.click('#mw-close');
+  assert.equal(await page.locator('.win').count(), 0, 'la fenêtre est fermée');
+  await ctx.close();
+});
+
+test('menus : survol pour passer d\'un menu à l\'autre, clic ailleurs ferme', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.click('#mb-brand-btn');
+  await page.hover('#mb-win-btn');
+  assert.equal(await page.getAttribute('#mb-win-btn', 'aria-expanded'), 'true');
+  assert.equal(await page.getAttribute('#mb-brand-btn', 'aria-expanded'), 'false', 'un seul menu ouvert à la fois');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await page.getAttribute('#mb-brand-btn', 'aria-expanded'), 'true', 'flèche gauche : menu voisin');
+  await page.mouse.click(600, 400);
+  assert.equal(await page.getAttribute('#mb-brand-btn', 'aria-expanded'), 'false');
+  await ctx.close();
+});
+
+test('menus : absents en mode téléphone', async () => {
+  const ctx = await site.browser.newContext({ viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  assert.equal(await page.locator('#mb-brand-btn').isVisible(), false);
   await ctx.close();
 });
