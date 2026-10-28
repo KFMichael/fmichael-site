@@ -743,7 +743,7 @@ test('barre de menus : logo dessiné, nom d\'application macOS et titre de fenê
   assert.match(await page.locator('#mb-brand-btn').textContent(), /Michaël Kangah/);
   const names = { parcours: 'Pages', travail: 'Safari', dispo: 'Calendrier', hobbies: 'Photos', contact: 'Mail' };
   for (const [id, mac] of Object.entries(names)) {
-    await page.click('.dock-item[data-app=' + id + ']');
+    await page.click('.dock-item:not(.home-item)[data-app=' + id + ']');
     assert.equal(await page.locator('.mb-app').textContent(), mac, id);
     await page.keyboard.press('Escape');
   }
