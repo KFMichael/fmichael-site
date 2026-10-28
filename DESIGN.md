@@ -98,9 +98,10 @@ Replis obligatoires :
 
 ## Références et licences
 Le bureau suit une **identité macOS** (décision de Michaël) et le téléphone les conventions iOS. On reprend des **conventions** (verre dépoli, pile de navigation, grille d'icônes), pas des éléments protégés :
-- **Interdit** : SF Symbols, police SF Pro hébergée ou distribuée, logos et marques Apple, noms « iOS », « iPhone » ou « Apple » dans l'interface (la seule mention factuelle, « sur iOS et Android » dans une réalisation, décrit un livrable réel), logos de marques tierces, faux horodatages.
-- **Autorisé** : icônes SVG dessinées maison, polices système appelées par leur nom, conventions des Human Interface Guidelines.
-- Le site doit garder une identité propre (nom, couleurs, contenu) et ne pas passer pour un produit Apple.
+- **Décision de Michaël (28 octobre 2026)** : les limites de licence sont levées pour le bureau, risque accepté en connaissance de cause, sans avis juridique. Autorisé : noms d'apps macOS (Finder, Safari, Pages, Photos, Mail, Calendrier), logo Apple dessiné en SVG maison, icônes dessinées maison proches des SF Symbols, comportements macOS.
+- **Toujours interdit** : tout fichier Apple dans le dépôt (police SF Pro, SF Symbols) sauf s'il les fournit lui-même, logos de marques tierces, faux horodatages, et se faire passer pour Apple : le pied de page indique « sans lien avec Apple ».
+- **Polices** : pile `-apple-system, BlinkMacSystemFont, system-ui` (la vraie SF Pro sur Mac et iPhone, une police système proche ailleurs).
+- Le mode téléphone garde les conventions iOS, sans noms de marques.
 
 ## Directions testées et abandonnées
 - **Design éditorial** (angles droits, aplats de couleur, titres en empattement, listes séparées par des filets, ni verre ni dégradés), testé le 26 octobre 2026 puis **refusé par Michaël** : ne pas le reproposer. Pour le retrouver :
