@@ -6,18 +6,20 @@ set -euo pipefail
 out="${1:-_site}"
 rm -rf "$out"
 mkdir -p "$out"
-cp index.html 404.html favicon.svg CNAME robots.txt sitemap.xml "$out"/
+cp index.html express.html 404.html favicon.svg CNAME robots.txt sitemap.xml "$out"/
 cp -R css js img "$out"/
 
 fail=0
-for f in index.html 404.html favicon.svg CNAME robots.txt sitemap.xml img/share.png; do
+for f in index.html express.html 404.html favicon.svg CNAME robots.txt sitemap.xml img/share.png; do
   [ -f "$out/$f" ] || { echo "Fichier indispensable manquant : $f"; fail=1; }
 done
 
-# Ressources locales référencées par la page (src / href, hors ancres et liens externes)
-while IFS= read -r ref; do
-  [ -e "$out/$ref" ] || { echo "Ressource référencée mais absente du site : $ref"; fail=1; }
-done < <(grep -ohE '(src|href)="[^"#:]+"' "$out/index.html" | sed -E 's/^(src|href)="//; s/"$//' | sort -u)
+# Ressources locales référencées par les pages (src / href, hors ancres et liens externes)
+for page in index.html express.html; do
+  while IFS= read -r ref; do
+    [ -e "$out/$ref" ] || { echo "Ressource référencée par $page mais absente du site : $ref"; fail=1; }
+  done < <(grep -ohE '(src|href)="[^"#:]+"' "$out/$page" | sed -E 's/^(src|href)="//; s/"$//' | sort -u)
+done
 
 # Ressources locales référencées par les feuilles de style (url(...)), relatives au dossier css/
 while IFS= read -r ref; do

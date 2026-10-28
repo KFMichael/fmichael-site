@@ -956,6 +956,84 @@ test('dock : sans animation si les animations sont réduites (pas de rebond, ré
   await ctx.close();
 });
 
+test('version express : proposée sur l\'écran verrouillé, dans le menu Aide, la recherche et la version classique', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  const lockLink = page.locator('#lock a.lock-btn');
+  assert.equal(await lockLink.textContent(), 'Version express');
+  assert.equal(await lockLink.getAttribute('href'), 'express.html');
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('#mb-help-btn');
+  assert.equal((await page.locator('#hp-express').textContent()).trim(), 'Version express');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Control+k');
+  await page.fill('#spot-input', 'express');
+  assert.match(await page.locator('#spot-list').innerText(), /Version express/);
+  await page.keyboard.press('Escape');
+  await page.click('#mb-help-btn');
+  await Promise.all([page.waitForURL('**/express.html'), page.click('#hp-express')]);
+  assert.equal(await page.locator('h1').textContent(), 'Michaël Kangah');
+  await ctx.close();
+
+  const classic = await site.browser.newContext(DESKTOP);
+  const page2 = await classic.newPage();
+  await page2.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page2.goto(site.base);
+  assert.equal(await page2.getAttribute('.nav-list a[href="express.html"]', 'href'), 'express.html');
+  await classic.close();
+});
+
+test('page express : lisible sans JavaScript, chiffres, outils, parcours, contact', async () => {
+  const ctx = await site.browser.newContext({ ...DESKTOP, javaScriptEnabled: false });
+  const page = await ctx.newPage();
+  await page.goto(site.base + 'express.html');
+  assert.equal(await page.locator('h1').count(), 1);
+  assert.deepEqual(await page.locator('.stats dd').allTextContents(), ['11 ans', '6 ans', '5', '4']);
+  const tools = await page.locator('.tool-groups .tags li').allTextContents();
+  assert.deepEqual(tools, ['Jira', 'Confluence', 'Trello', 'Claude', 'Shopify', 'Salesforce', 'WebViews', 'Moteurs de personnalisation 3D (Threekit)']);
+  assert.equal(await page.locator('.brief li').count(), 5);
+  assert.match(await page.locator('main').innerText(), /En mission longue, disponible pour des projets de courte durée/);
+  const hrefs = await page.locator('main a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  for (const h of ['https://calendly.com/kangahmichael/new-meeting', 'mailto:k@fmichael.cloud', 'https://www.linkedin.com/in/kangahmichael/', 'https://github.com/KFMichael', '/']) assert.ok(hrefs.includes(h), h);
+  const calendly = page.locator('main a[href^="https://calendly.com"]');
+  assert.equal((await calendly.first().innerText()).replace(/\s+/g, ' ').trim().startsWith('Prendre rendez-vous'), true);
+  const hidden = await calendly.first().locator('.visually-hidden').evaluate((el) => { const r = el.getBoundingClientRect(); return [r.width, r.height]; });
+  assert.deepEqual(hidden, [1, 1], 'la mention « nouvel onglet » n\'est pas visible (réservée aux lecteurs d\'écran)');
+  assert.equal(await calendly.getAttribute('target'), '_blank');
+  assert.equal(await calendly.getAttribute('rel'), 'noopener');
+  // Pas de défilement horizontal à 320 px
+  await page.setViewportSize({ width: 320, height: 700 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'pas de débordement à 320 px');
+  await ctx.close();
+});
+
+test('parcours : la carte « Outils du quotidien » est dans la page classique et dans la fenêtre du bureau', async () => {
+  const expected = ['Jira', 'Confluence', 'Trello', 'Claude', 'Shopify', 'Salesforce', 'WebViews', 'Moteurs de personnalisation 3D (Threekit)'];
+  const classic = await site.browser.newContext(DESKTOP);
+  const page = await classic.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const card = page.locator('#parcours .card', { has: page.locator('h3', { hasText: 'Outils du quotidien' }) });
+  assert.deepEqual(await card.locator('.tags li').allTextContents(), expected);
+  assert.match(await card.innerText(), /Mon Monogram/);
+  await classic.close();
+
+  const ctx = await site.browser.newContext(DESKTOP);
+  const desk = await ctx.newPage();
+  await desk.goto(site.base);
+  await desk.click('#enter');
+  await desk.waitForSelector('#lock', { state: 'hidden' });
+  await desk.click('.dock-item:not(.home-item)[data-app=parcours]');
+  assert.deepEqual(await desk.locator('.win .tags li').allTextContents(), expected);
+  await desk.keyboard.press('Escape');
+  await desk.keyboard.press('Control+k');
+  await desk.fill('#spot-input', 'jira');
+  assert.match(await desk.locator('#spot-list').innerText(), /Parcours/);
+  await ctx.close();
+});
+
 test('parcours : les certifications sont regroupées par thème, avec le lien LinkedIn', async () => {
   const ctx = await site.browser.newContext(DESKTOP);
   const page = await ctx.newPage();

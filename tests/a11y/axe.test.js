@@ -142,3 +142,15 @@ for (const scheme of ['light', 'dark']) {
     await ctx.close();
   });
 }
+
+for (const scheme of ['light', 'dark']) {
+  test('version express, thème ' + scheme + ' : bureau et téléphone', async () => {
+    for (const [name, opts] of [['bureau', DESKTOP], ['téléphone', PHONE]]) {
+      const ctx = await browser.newContext({ ...opts, colorScheme: scheme });
+      const page = await ctx.newPage();
+      await page.goto(base + 'express.html');
+      assert.deepEqual(await violations(page), [], 'version express, ' + name);
+      await ctx.close();
+    }
+  });
+}
