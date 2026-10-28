@@ -137,6 +137,7 @@ a { color: var(--accent); text-underline-offset: 0.2em; }
 .card h3 + h4 { margin-top: 0.5rem; }
 .note { color: var(--muted); font-size: 1rem; margin-top: 1.5rem; }
 
+.tags + .grid { margin-top: 1.5rem; }
 .tags-big { margin-top: 0.5rem; }
 .tags-big li { font-size: 1rem; padding: 0.35rem 1rem; color: var(--text); }
 

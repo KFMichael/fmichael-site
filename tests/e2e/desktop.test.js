@@ -703,6 +703,36 @@ test('parcours : le stage au CNRS est dans la frise (dates, texte, lien HAL) sou
   await ctx.close();
 });
 
+test('parcours : Chaumet (depuis le 14 septembre 2026) et Louis Vuitton jusqu\'en juin 2026', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const items = page.locator('#parcours .timeline > li');
+  const freelance = items.nth(0);
+  assert.match(await freelance.innerText(), /Chaumet/);
+  assert.deepEqual(await freelance.locator('time').evaluateAll((ts) => ts.map((t) => t.getAttribute('datetime'))), ['2022', '2026-09-14']);
+  const link = await freelance.locator('a').evaluate((a) => [a.href, a.target, a.rel, a.textContent.includes('nouvel onglet')]);
+  assert.deepEqual(link, ['https://www.chaumet.com/', '_blank', 'noopener', true]);
+  const lv = items.nth(1);
+  assert.deepEqual(await lv.locator('time').evaluateAll((ts) => ts.map((t) => t.getAttribute('datetime'))), ['2020-03', '2026-06']);
+  await ctx.close();
+});
+
+test('réalisations : les domaines ne collent pas à la première carte', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const gap = await page.evaluate(() => {
+    const tags = document.querySelector('#travail .tags').getBoundingClientRect();
+    const card = document.querySelector('#travail .grid .card').getBoundingClientRect();
+    return card.top - tags.bottom;
+  });
+  assert.ok(gap >= 16, 'écart entre les domaines et la première carte : ' + gap + ' px');
+  await ctx.close();
+});
+
 test('parcours : les certifications sont regroupées par thème, avec le lien LinkedIn', async () => {
   const ctx = await site.browser.newContext(DESKTOP);
   const page = await ctx.newPage();
