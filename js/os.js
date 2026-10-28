@@ -583,6 +583,72 @@
     fs.hidden = !(document.fullscreenEnabled && root.requestFullscreen);
     fs.setAttribute('aria-checked', document.fullscreenElement ? 'true' : 'false');
   }
+  /* Menu Présentation : thème et plein écran, avec leur état. */
+  function syncView() {
+    document.getElementById('vw-theme').setAttribute('aria-checked', root.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
+    var fs = document.getElementById('vw-fs');
+    fs.hidden = !(document.fullscreenEnabled && root.requestFullscreen);
+    fs.setAttribute('aria-checked', document.fullscreenElement ? 'true' : 'false');
+  }
+
+  /* Menu Fichier : propre à l'application active. Les actions viennent du contenu réellement affiché dans la fenêtre
+     (ses liens), sans rien inventer ; sans fenêtre, il ouvre les applications. */
+  function linkLabel(a) {
+    var c = a.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll('.visually-hidden'), function (n) { n.remove(); });
+    return c.textContent.replace(/\s+/g, ' ').trim();
+  }
+  function openUrl(url) {
+    var a = document.createElement('a');
+    a.href = url;
+    if (!/^mailto:/i.test(url)) { a.target = '_blank'; a.rel = 'noopener'; }
+    a.click();
+  }
+  function addMenuItem(menu, label, onClick, newTab) {
+    var li = document.createElement('li');
+    li.setAttribute('role', 'none');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'menuitem');
+    b.textContent = label;
+    if (newTab) {
+      var vh = document.createElement('span');
+      vh.className = 'vh';
+      vh.textContent = ' (nouvel onglet)';
+      b.appendChild(vh);
+    }
+    b.addEventListener('click', onClick);
+    li.appendChild(b);
+    menu.appendChild(li);
+    return b;
+  }
+  function addMenuSeparator(menu) {
+    var li = document.createElement('li');
+    li.setAttribute('role', 'separator');
+    menu.appendChild(li);
+  }
+  function syncFileMenu() {
+    var menu = document.getElementById('menu-file');
+    menu.innerHTML = '';
+    var id = activeWinId();
+    if (!id) {
+      DOCK_ORDER.forEach(function (k) { addMenuItem(menu, 'Ouvrir ' + APPS[k].title, function () { opener = null; openApp(k); }); });
+      return;
+    }
+    var seen = {};
+    var links = Array.prototype.filter.call(openWins[id].querySelectorAll('.win-body a[href]'), function (a) {
+      if (seen[a.href]) return false;
+      seen[a.href] = true;
+      return linkLabel(a) !== '';
+    }).slice(0, 8);
+    links.forEach(function (a) {
+      var url = a.href;
+      addMenuItem(menu, linkLabel(a), function () { openUrl(url); }, !/^mailto:/i.test(url));
+    });
+    if (links.length) addMenuSeparator(menu);
+    addMenuItem(menu, 'Fermer la fenêtre', function () { closeApp(id, true); });
+  }
+
   function closeMenus(returnFocus) {
     menuTriggers.forEach(function (t) {
       if (t.getAttribute('aria-expanded') !== 'true') return;
@@ -596,6 +662,8 @@
     var menu = menuOf(trigger);
     if (menu.id === 'menu-win') syncWindowMenu();
     if (menu.id === 'menu-ctrl') syncControl();
+    if (menu.id === 'menu-view') syncView();
+    if (menu.id === 'menu-file') syncFileMenu();
     menu.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
     var items = menuItems(menu);
@@ -643,6 +711,10 @@
       if (e.relatedTarget && !e.relatedTarget.closest('.mb-menu')) closeMenus(false);
     });
 
+    document.getElementById('vw-theme').addEventListener('click', function () { themeBtn.click(); });
+    document.getElementById('vw-fs').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); });
+    document.getElementById('hp-keys').addEventListener('click', aboutOpen);
+    document.getElementById('hp-contact').addEventListener('click', function () { opener = null; openApp('contact'); });
     document.getElementById('cc-theme').addEventListener('click', function () { themeBtn.click(); });
     document.getElementById('cc-fs').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); });
     document.getElementById('cc-classic').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="classic"]').click(); });
@@ -834,6 +906,65 @@
     });
   }
 
+  /* Menu contextuel du bureau (clic droit sur le fond) : un complément, tout existe aussi dans la barre de menus. */
+  function initContextMenu() {
+    var ctx = document.getElementById('menu-ctx');
+    var back = null;
+    function build() {
+      ctx.innerHTML = '';
+      DOCK_ORDER.forEach(function (k) { addMenuItem(ctx, 'Ouvrir ' + APPS[k].title, function () { opener = null; openApp(k); }); });
+      addMenuSeparator(ctx);
+      var dark = root.getAttribute('data-theme') === 'dark';
+      var th = addMenuItem(ctx, 'Thème sombre', function () { themeBtn.click(); });
+      th.setAttribute('role', 'menuitemcheckbox');
+      th.setAttribute('aria-checked', dark ? 'true' : 'false');
+      if (document.fullscreenEnabled && root.requestFullscreen) {
+        var fs = addMenuItem(ctx, 'Plein écran', function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); });
+        fs.setAttribute('role', 'menuitemcheckbox');
+        fs.setAttribute('aria-checked', document.fullscreenElement ? 'true' : 'false');
+      }
+      addMenuSeparator(ctx);
+      addMenuItem(ctx, 'À propos de ce site', aboutOpen);
+      addMenuItem(ctx, 'Version classique', function () { os.querySelector('#menu-brand [data-action="classic"]').click(); });
+    }
+    function hide(restore) {
+      if (ctx.hidden) return;
+      ctx.hidden = true;
+      if (restore && back && back.isConnected && !back.closest('[inert]')) back.focus();
+      back = null;
+    }
+    desktop.addEventListener('contextmenu', function (e) {
+      if (isPhone() || os.hidden || !lock.hidden || !spot.hidden || !about.hidden) return;
+      if (e.target.closest('.win, .dock, .menubar, .desk-widgets, .menu, .spot, .about, #home')) return;
+      e.preventDefault();
+      closeMenus(false);
+      back = document.activeElement;
+      build();
+      ctx.hidden = false;
+      var box = desktop.getBoundingClientRect();
+      var x = Math.min(e.clientX - box.left, box.width - ctx.offsetWidth - 8);
+      var y = Math.min(e.clientY - box.top, box.height - ctx.offsetHeight - 8);
+      ctx.style.left = Math.max(8, x) + 'px';
+      ctx.style.top = Math.max(8, y) + 'px';
+      menuItems(ctx)[0].focus();
+    });
+    ctx.addEventListener('keydown', function (e) {
+      var items = menuItems(ctx);
+      var at = items.indexOf(document.activeElement);
+      var move = function (n) { e.preventDefault(); items[(n + items.length) % items.length].focus(); };
+      if (e.key === 'ArrowDown') move(at + 1);
+      else if (e.key === 'ArrowUp') move(at - 1);
+      else if (e.key === 'Home') move(0);
+      else if (e.key === 'End') move(items.length - 1);
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); hide(true); }
+      else if (e.key === 'Tab') hide(false);
+    });
+    ctx.addEventListener('click', function (e) { if (e.target.closest('[role^="menuitem"]')) hide(false); });
+    document.addEventListener('pointerdown', function (e) { if (!e.target.closest('#menu-ctx')) hide(false); });
+    window.addEventListener('blur', function () { hide(false); });
+    window.addEventListener('resize', function () { hide(false); });
+  }
+
   /* Alt + 1 à 5 : ouvrir (ou ramener) l'application du dock. ⌘W, ⌘M et ⌘Tab sont réservés par le navigateur et le système : ils n'arrivent pas jusqu'à la page. */
   var DOCK_ORDER = ['parcours', 'travail', 'dispo', 'hobbies', 'contact'];
   function initAppShortcuts() {
@@ -966,6 +1097,7 @@
     initSpot();
     initAbout();
     initAppShortcuts();
+    initContextMenu();
     document.getElementById('os-lock').addEventListener('click', showLock);
     themeBtn.addEventListener('click', function () {
       document.getElementById('theme-toggle').click();

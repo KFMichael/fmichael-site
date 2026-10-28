@@ -241,8 +241,11 @@ test('plein écran : proposé (jamais automatique) sur l\'écran verrouillé et 
   assert.equal(await btn.getAttribute('aria-pressed'), 'false');
   await btn.click();
   await page.waitForFunction(() => !!document.fullscreenElement, null, { timeout: 3000 }).catch(() => {});
-  const on = await page.evaluate(() => !!document.fullscreenElement);
-  assert.equal(await btn.textContent(), on ? 'Quitter le plein écran' : 'Plein écran');
+  // Le navigateur change l'état du plein écran, puis déclenche `fullscreenchange` : on attend que le texte du bouton suive l'état.
+  await page.waitForFunction(() => {
+    const b = document.querySelector('#lock [data-action=fullscreen]');
+    return b.textContent === (document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran');
+  }, null, { timeout: 3000 });
   await ctx.close();
 });
 
@@ -447,9 +450,10 @@ test('menus : survol pour passer d\'un menu à l\'autre, clic ailleurs ferme', a
   assert.equal(await page.getAttribute('#mb-win-btn', 'aria-expanded'), 'true');
   assert.equal(await page.getAttribute('#mb-brand-btn', 'aria-expanded'), 'false', 'un seul menu ouvert à la fois');
   await page.keyboard.press('ArrowLeft');
-  assert.equal(await page.getAttribute('#mb-brand-btn', 'aria-expanded'), 'true', 'flèche gauche : menu voisin');
+  assert.equal(await page.getAttribute('#mb-view-btn', 'aria-expanded'), 'true', 'flèche gauche : menu voisin (Présentation)');
+  assert.equal(await page.getAttribute('#mb-win-btn', 'aria-expanded'), 'false');
   await page.mouse.click(600, 400);
-  assert.equal(await page.getAttribute('#mb-brand-btn', 'aria-expanded'), 'false');
+  assert.equal(await page.getAttribute('#mb-view-btn', 'aria-expanded'), 'false');
   await ctx.close();
 });
 
@@ -819,6 +823,87 @@ test('raccourcis : Alt + 1 à 5 ouvrent les applications, rien quand la recherch
   await page.keyboard.press('Escape');
   await page.keyboard.press('Alt+Digit5');
   assert.equal(await page.locator('.mb-app').textContent(), 'Mail');
+  await ctx.close();
+});
+
+test('menu Fichier : ouvre les applications sans fenêtre, puis liste les liens de l\'application active', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('#mb-file-btn');
+  const items = () => page.locator('#menu-file [role=menuitem]').allInnerTexts();
+  assert.deepEqual((await items()).map((t) => t.trim()), ['Ouvrir Parcours', 'Ouvrir Réalisations', 'Ouvrir Disponibilité', 'Ouvrir Hobbies', 'Ouvrir Contact']);
+  await page.click('#menu-file >> text=Ouvrir Contact');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Mail');
+  await page.click('#mb-file-btn');
+  const labels = (await items()).map((t) => t.replace(/\s+/g, ' ').trim());
+  assert.ok(labels.some((t) => /Prendre rendez-vous/.test(t)), labels.join(' | '));
+  assert.ok(labels.some((t) => /k@fmichael\.cloud/.test(t)));
+  assert.ok(labels.some((t) => /LinkedIn/.test(t)));
+  assert.equal(labels[labels.length - 1], 'Fermer la fenêtre');
+  await ctx.route('**/calendly.com/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<title>Calendly</title>' }));
+  const [popup] = await Promise.all([ctx.waitForEvent('page'), page.click('#menu-file >> text=/Prendre rendez-vous/')]);
+  await popup.waitForLoadState();
+  assert.match(popup.url(), /calendly\.com/);
+  await popup.close();
+  await page.click('#mb-file-btn');
+  await page.click('#menu-file >> text=Fermer la fenêtre');
+  assert.equal(await page.locator('.win').count(), 0);
+  assert.equal(await page.locator('.mb-app').textContent(), 'Finder');
+  await ctx.close();
+});
+
+test('menus Présentation et Aide : thème, raccourcis, contact', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  const theme = () => page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  const before = await theme();
+  await page.click('#mb-view-btn');
+  const checked = await page.getAttribute('#vw-theme', 'aria-checked');
+  await page.click('#vw-theme');
+  assert.notEqual(await theme(), before);
+  await page.click('#mb-view-btn');
+  assert.notEqual(await page.getAttribute('#vw-theme', 'aria-checked'), checked);
+  await page.keyboard.press('Escape');
+  await page.click('#mb-help-btn');
+  await page.click('#hp-keys');
+  assert.equal(await page.locator('#about').isVisible(), true);
+  await page.keyboard.press('Escape');
+  await page.click('#mb-help-btn');
+  await page.click('#hp-contact');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Mail');
+  await ctx.close();
+});
+
+test('menu contextuel du bureau : clic droit sur le fond seulement, clavier et Échap', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.mouse.click(700, 420, { button: 'right' });
+  assert.equal(await page.locator('#menu-ctx').isVisible(), true);
+  const first = await page.evaluate(() => document.activeElement.textContent.trim());
+  assert.equal(first, 'Ouvrir Parcours', 'le focus va au premier élément');
+  await page.keyboard.press('End');
+  assert.equal(await page.evaluate(() => document.activeElement.textContent.trim()), 'Version classique');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#menu-ctx').isVisible(), false);
+  await page.mouse.click(700, 420, { button: 'right' });
+  await page.click('#menu-ctx >> text=Ouvrir Hobbies');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Photos');
+  assert.equal(await page.locator('#menu-ctx').isVisible(), false, 'le menu se ferme après l\'action');
+  const win = await page.locator('.win').boundingBox();
+  await page.mouse.click(win.x + win.width / 2, win.y + win.height / 2, { button: 'right' });
+  assert.equal(await page.locator('#menu-ctx').isVisible(), false, 'pas de menu sur une fenêtre');
+  await page.mouse.click(700, 420, { button: 'right' });
+  await page.mouse.click(20, 800);
+  assert.equal(await page.locator('#menu-ctx').isVisible(), false, 'un clic ailleurs le ferme');
   await ctx.close();
 });
 
