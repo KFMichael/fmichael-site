@@ -741,6 +741,7 @@
     document.getElementById('vw-fs').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); });
     document.getElementById('hp-keys').addEventListener('click', aboutOpen);
     document.getElementById('hp-contact').addEventListener('click', function () { opener = null; openApp('contact'); });
+    document.getElementById('hp-express').addEventListener('click', function () { location.href = 'express.html'; });
     document.getElementById('cc-theme').addEventListener('click', function () { themeBtn.click(); });
     document.getElementById('cc-fs').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); });
     document.getElementById('cc-classic').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="classic"]').click(); });
@@ -775,13 +776,14 @@
     var dark = root.getAttribute('data-theme') === 'dark';
     var fs = document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran';
     var list = [
-      { group: 'Applications', label: 'Parcours', hint: 'CV et expériences', keywords: 'cv formation louis vuitton davidson wemanity omnilog france télévisions canal+ aptar chaumet shopify galeries lafayette cnrs stage robot webrtc azkar certifications scrum safe istqb itil', run: function () { openApp('parcours'); } },
+      { group: 'Applications', label: 'Parcours', hint: 'CV et expériences', keywords: 'cv outils jira confluence trello claude salesforce shopify webviews threekit formation louis vuitton davidson wemanity omnilog france télévisions canal+ aptar chaumet shopify galeries lafayette cnrs stage robot webrtc azkar certifications scrum safe istqb itil', run: function () { openApp('parcours'); } },
       { group: 'Applications', label: 'Réalisations', hint: 'Études de cas', keywords: 'shopify boutiques e-commerce portfolio', run: function () { openApp('travail'); } },
       { group: 'Applications', label: 'Disponibilité', hint: 'En mission longue, projets courts', keywords: 'mission freelance rendez-vous', run: function () { openApp('dispo'); } },
       { group: 'Applications', label: 'Hobbies', hint: 'Vibecoding, tennis, football, jeux, voyage', keywords: 'echecs budget', run: function () { openApp('hobbies'); } },
       { group: 'Applications', label: 'Contact', hint: 'E-mail, LinkedIn, GitHub', keywords: 'mail email', run: function () { openApp('contact'); } },
       { group: 'Actions', label: 'Verrouiller l\'écran', hint: '', keywords: 'ecran verrouillage', run: function () { document.getElementById('os-lock').click(); } },
       { group: 'Actions', label: dark ? 'Passer au thème clair' : 'Passer au thème sombre', hint: '', keywords: 'theme sombre clair apparence', run: function () { themeBtn.click(); } },
+      { group: 'Actions', label: 'Version express', hint: 'Une page, 30 secondes', keywords: 'express recruteur synthese resume rapide', run: function () { location.href = 'express.html'; } },
       { group: 'Actions', label: 'Version classique', hint: 'Page simple', keywords: 'classique page simple', run: function () { os.querySelector('#menu-brand [data-action="classic"]').click(); } },
       { group: 'Liens', label: 'Prendre rendez-vous', hint: 'Calendly, ' + LINK_NOTE, keywords: 'calendly disponibilite reunion', url: 'https://calendly.com/kangahmichael/new-meeting' },
       { group: 'Liens', label: 'LinkedIn', hint: LINK_NOTE, keywords: 'profil reseau', url: 'https://www.linkedin.com/in/kangahmichael/' },

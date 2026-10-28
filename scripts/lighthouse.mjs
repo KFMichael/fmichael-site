@@ -31,7 +31,8 @@ const serveur = createServer(async (req, res) => {
   }
 });
 await new Promise((ok) => serveur.listen(0, '127.0.0.1', ok));
-const url = `http://127.0.0.1:${serveur.address().port}/`;
+const base = `http://127.0.0.1:${serveur.address().port}/`;
+const PAGES = [['accueil', base], ['express', base + 'express.html']];
 
 const chrome = await launch({
   chromePath: process.env.CHROME_PATH,
@@ -40,7 +41,8 @@ const chrome = await launch({
 
 let echec = false;
 try {
-  for (const [nom, config] of [['mobile', undefined], ['bureau', desktopConfig]]) {
+  for (const [page, url] of PAGES) for (const [mode, config] of [['mobile', undefined], ['bureau', desktopConfig]]) {
+    const nom = `${page} ${mode}`;
     const { lhr } = await lighthouse(url, { port: chrome.port, output: 'json', logLevel: 'error' }, config);
     const notes = Object.fromEntries(Object.entries(lhr.categories).map(([id, c]) => [id, c.score]));
     console.log(`\nLighthouse ${nom} : ` + Object.entries(notes).map(([id, n]) => `${id} ${Math.round(n * 100)}`).join(', '));
