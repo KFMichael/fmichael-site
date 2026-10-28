@@ -322,6 +322,7 @@
 
     setActive(win);
     win.focus();
+    if (!phone) bounceIcon(id);
   }
 
   // Retire un élément après son animation de sortie (tout de suite si les animations sont réduites)
@@ -340,13 +341,32 @@
     return ids.length ? openWins[ids[ids.length - 1]] : null;
   }
 
+  /* Animations du dock (coupées si les animations sont réduites) : la fenêtre part vers l'icône et en revient ; l'icône rebondit
+     à la première ouverture. On calcule le trajet entre le centre de la fenêtre et celui de l'icône. */
+  function dockIcon(id) { var b = dockButton(id); return b && b.querySelector('.ico'); }
+  function flyVars(win, id) {
+    var icon = dockIcon(id);
+    if (!icon) return;
+    var w = win.getBoundingClientRect(), i = icon.getBoundingClientRect();
+    win.style.setProperty('--mdx', Math.round(i.left + i.width / 2 - (w.left + w.width / 2)) + 'px');
+    win.style.setProperty('--mdy', Math.round(i.top + i.height / 2 - (w.top + w.height / 2)) + 'px');
+  }
+  function bounceIcon(id) {
+    var icon = dockIcon(id);
+    if (!icon || reduced.matches) return;
+    icon.classList.remove('bounce');
+    void icon.offsetWidth;
+    icon.classList.add('bounce');
+    setTimeout(function () { icon.classList.remove('bounce'); }, 760);
+  }
+
   function minimizeApp(id) {
     var win = openWins[id];
     if (!win || isPhone() || win.classList.contains('minimized')) return;
     var finish = function () { win.classList.remove('minimizing'); win.classList.add('minimized'); };
     win.inert = true;
     if (reduced.matches) finish();
-    else { win.classList.add('minimizing'); setTimeout(finish, 230); }
+    else { flyVars(win, id); win.classList.add('minimizing'); setTimeout(finish, 330); }
     Array.prototype.forEach.call(appButtons(id), function (b) {
       b.setAttribute('aria-expanded', 'false');
       b.setAttribute('data-min', 'true');
@@ -360,8 +380,14 @@
   function restoreApp(id) {
     var win = openWins[id];
     if (!win) return;
+    var wasMin = win.classList.contains('minimized');
     win.classList.remove('minimized', 'minimizing');
     win.inert = false;
+    if (wasMin && !reduced.matches && !isPhone()) {
+      flyVars(win, id);
+      win.classList.add('restoring');
+      setTimeout(function () { win.classList.remove('restoring'); }, 340);
+    }
     Array.prototype.forEach.call(appButtons(id), function (b) {
       b.setAttribute('aria-expanded', 'true');
       b.removeAttribute('data-min');
