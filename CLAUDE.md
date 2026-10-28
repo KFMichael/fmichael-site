@@ -45,7 +45,7 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 - Toujours une sortie : bouton « Version classique » (mémorisé), page classique sur mobile, petit écran et zoom élevé.
 - Clavier : Tab/Entrée pour tout, Échap ferme la fenêtre et rend le focus au dock. Le glisser à la souris est un bonus.
 - Choix par défaut : accent bleu, icônes dessinées maison.
-- **Limites de licence, valables même avec une identité macOS** : pas de logo Apple, pas de SF Symbols, pas de police SF Pro hébergée ou distribuée (la pile `-apple-system` appelle la police déjà installée, c'est permis) ; pas de noms de produits ou de marques Apple dans l'interface (« Finder », « Safari », « iOS », « iPhone »…) ni de logos de marques tierces ; icônes SVG dessinées maison. Le site ne doit pas passer pour un produit Apple. Ces limites viennent des licences et des marques, pas d'un choix de style : on les lève seulement après un avis juridique.
+- **Limites de licence levées par Michaël (28 octobre 2026, risque accepté en connaissance de cause, sans avis juridique)** : le bureau reprend les noms d'apps macOS (Finder, Safari, Pages, Photos, Mail, Calendrier), un logo Apple dessiné en SVG maison, des icônes dessinées maison proches des SF Symbols, et les comportements macOS. Restent valables : aucun fichier Apple dans le dépôt (pas de police SF Pro, pas de SF Symbols) sauf si Michaël les fournit lui-même ; la pile `-apple-system` appelle la police déjà installée ; pas de logos de marques tierces ; le site doit dire qu'il n'a aucun lien avec Apple (pied de page) ; le mode téléphone garde les conventions iOS sans noms de marques.
 - Pas de faux horodatages.
 
 ## Mode téléphone (conventions des Human Interface Guidelines, version web)

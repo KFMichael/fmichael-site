@@ -109,6 +109,7 @@ a { color: var(--accent); text-underline-offset: 0.2em; }
 .links a { display: inline-block; padding-block: 0.4rem; }
 
 .site-footer { border-top: 1px solid var(--border); padding-block: 2rem; color: var(--muted); font-size: 1rem; }
+.footer-note { margin: 0.5rem 0 0; font-size: 0.9rem; }
 
 @media (prefers-reduced-motion: no-preference) {
   .button, .theme-toggle, .nav-list a { transition: background-color 150ms, filter 150ms; }
