@@ -135,8 +135,9 @@ html.os-mode .site-footer { display: none; }
   min-height: 28px; padding: 0.1rem 0.65rem; border-radius: 0.4rem; background: transparent; border: 0; color: var(--text);
 }
 .mb-trigger:hover, .mb-trigger[aria-expanded="true"] { background: color-mix(in srgb, var(--text) 12%, transparent); }
-.mb-brand { font-weight: 700; }
-.mb-app { color: var(--muted); padding: 0 0.65rem; font-weight: 600; }
+.mb-brand { font-weight: 700; display: inline-flex; align-items: center; }
+.mb-logo { display: block; }
+.mb-app { color: var(--text); padding: 0 0.65rem; font-weight: 700; }
 
 /* Recherche (Ctrl+K) : panneau centré au-dessus de tout, le reste est inerte tant qu'il est ouvert */
 .spot { position: absolute; inset: 0; z-index: 70; display: flex; justify-content: center; align-items: flex-start; padding: 14vh 1rem 1rem; }

@@ -12,6 +12,7 @@
   var layer = document.getElementById('win-layer');
   var enterBtn = document.getElementById('enter');
   var appLabel = document.getElementById('mb-app');
+  if (appLabel) appLabel.textContent = 'Finder';
   var themeBtn = document.getElementById('os-theme');
   var openWins = {};
   var zTop = 10;
@@ -205,12 +206,15 @@
 
   function dockButton(id) { return dock.querySelector('.dock-item[data-app="' + id + '"]'); }
 
+  // Nom de l'application affiché dans la barre de menus, comme sur macOS (le titre de la fenêtre garde le nom du contenu).
+  var MAC_NAMES = { finder: 'Finder', parcours: 'Pages', travail: 'Safari', dispo: 'Calendrier', hobbies: 'Photos', contact: 'Mail' };
+
   function setActive(win) {
     Object.keys(openWins).forEach(function (k) { openWins[k].classList.remove('active'); });
-    if (!win) { appLabel.textContent = ''; return; }
+    if (!win) { appLabel.textContent = MAC_NAMES.finder; return; }
     win.classList.add('active');
     win.style.zIndex = ++zTop;
-    appLabel.textContent = win.getAttribute('data-title');
+    appLabel.textContent = MAC_NAMES[win.getAttribute('data-app')] || win.getAttribute('data-title');
   }
 
   function openApp(id) {

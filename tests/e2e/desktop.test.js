@@ -277,7 +277,7 @@ test('réduire : la fenêtre part dans le dock (point), l\'icône la rouvre, foc
   await enterDesktop(page);
   await page.click('.dock [data-app=parcours]');
   assert.equal(await page.getAttribute('.win .light.min', 'aria-label'), 'Réduire la fenêtre Parcours');
-  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Pages');
   await page.click('.win .light.min');
   await page.waitForSelector('.win.minimized', { state: 'attached' });
   assert.equal(await page.locator('.win').isVisible(), false, 'la fenêtre est cachée');
@@ -287,14 +287,14 @@ test('réduire : la fenêtre part dans le dock (point), l\'icône la rouvre, foc
   const dot = await btn.evaluate((el) => getComputedStyle(el, '::after').content);
   assert.notEqual(dot, 'none', 'le point reste sous l\'icône');
   assert.equal(await page.evaluate(() => document.activeElement.dataset.app), 'parcours', 'le focus revient au dock');
-  assert.equal(await page.locator('.mb-app').textContent(), '', 'plus de fenêtre active');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Finder', 'plus de fenêtre active');
   assert.equal(await page.locator('.win').count(), 1, 'la fenêtre n\'est pas fermée');
   await btn.click();
   await page.waitForFunction(() => document.querySelector('.win') && !document.querySelector('.win').classList.contains('minimized'));
   assert.equal(await page.locator('.win').isVisible(), true);
   assert.equal(await btn.getAttribute('aria-expanded'), 'true');
   assert.equal(await btn.getAttribute('data-min'), null);
-  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Pages');
   await ctx.close();
 });
 
@@ -304,11 +304,11 @@ test('réduire : atteignable au clavier, la fenêtre suivante devient active', a
   await enterDesktop(page);
   await page.click('.dock [data-app=parcours]');
   await page.click('.dock [data-app=hobbies]');
-  assert.equal(await page.locator('.mb-app').textContent(), 'Hobbies');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Photos');
   await page.focus('.win[data-app=hobbies] .light.min');
   await page.keyboard.press('Enter');
   await page.waitForSelector('.win[data-app=hobbies].minimized', { state: 'attached' });
-  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours', 'la fenêtre visible reprend la main');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Pages', 'la fenêtre visible reprend la main');
   await ctx.close();
 });
 
@@ -506,7 +506,7 @@ test('recherche : filtrer, naviguer aux flèches (avec bouclage) et ouvrir avec 
   await page.keyboard.press('Enter');
   await page.waitForSelector('.win[data-app=hobbies]');
   assert.equal(await page.locator('#spot').isVisible(), false);
-  assert.equal(await page.locator('.mb-app').textContent(), 'Hobbies');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Photos');
   assert.equal(await page.evaluate(() => document.querySelector('.dock').inert), false, 'le bureau n\'est plus inerte');
   await ctx.close();
 });
@@ -590,7 +590,7 @@ test('fenêtres : un clic sur une fenêtre de derrière la met au premier plan, 
   assert.equal(await last.evaluate((el) => el.classList.contains('active')), false);
   const z = (loc) => loc.evaluate((el) => Number(el.style.zIndex));
   assert.ok((await z(first)) > (await z(last)), 'au premier plan');
-  assert.equal(await page.locator('.mb-app').textContent(), 'Parcours');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Pages');
   assert.equal(await light(first), 'rgb(255, 95, 87)');
   await ctx.close();
 });
@@ -730,6 +730,23 @@ test('réalisations : les domaines ne collent pas à la première carte', async 
     return card.top - tags.bottom;
   });
   assert.ok(gap >= 16, 'écart entre les domaines et la première carte : ' + gap + ' px');
+  await ctx.close();
+});
+
+test('barre de menus : logo dessiné, nom d\'application macOS et titre de fenêtre descriptif', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Finder');
+  assert.equal(await page.locator('#mb-brand-btn .mb-logo').count(), 1, 'logo SVG dans le bouton');
+  assert.match(await page.locator('#mb-brand-btn').textContent(), /Michaël Kangah/);
+  const names = { parcours: 'Pages', travail: 'Safari', dispo: 'Calendrier', hobbies: 'Photos', contact: 'Mail' };
+  for (const [id, mac] of Object.entries(names)) {
+    await page.click('.dock-item[data-app=' + id + ']');
+    assert.equal(await page.locator('.mb-app').textContent(), mac, id);
+    await page.keyboard.press('Escape');
+  }
   await ctx.close();
 });
 
