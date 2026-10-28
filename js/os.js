@@ -661,7 +661,7 @@
     var dark = root.getAttribute('data-theme') === 'dark';
     var fs = document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran';
     var list = [
-      { group: 'Applications', label: 'Parcours', hint: 'CV et expériences', keywords: 'cv formation louis vuitton davidson wemanity omnilog', run: function () { openApp('parcours'); } },
+      { group: 'Applications', label: 'Parcours', hint: 'CV et expériences', keywords: 'cv formation louis vuitton davidson wemanity omnilog cnrs stage robot webrtc azkar certifications scrum safe istqb itil', run: function () { openApp('parcours'); } },
       { group: 'Applications', label: 'Réalisations', hint: 'Études de cas', keywords: 'shopify boutiques e-commerce portfolio', run: function () { openApp('travail'); } },
       { group: 'Applications', label: 'Disponibilité', hint: 'En mission longue, projets courts', keywords: 'mission freelance rendez-vous', run: function () { openApp('dispo'); } },
       { group: 'Applications', label: 'Hobbies', hint: 'Vibecoding, tennis, football, jeux, voyage', keywords: 'echecs budget', run: function () { openApp('hobbies'); } },
