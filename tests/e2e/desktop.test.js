@@ -907,6 +907,55 @@ test('menu contextuel du bureau : clic droit sur le fond seulement, clavier et �
   await ctx.close();
 });
 
+test('dock : l\'icône rebondit à la première ouverture, la fenêtre part vers l\'icône en se réduisant et en revient', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  const icon = '.dock-item:not(.home-item)[data-app=parcours] .ico';
+  const dock = '.dock-item:not(.home-item)[data-app=parcours]';
+  await page.click(dock);
+  assert.equal(await page.locator(icon).evaluate((el) => el.classList.contains('bounce')), true, 'rebond à l\'ouverture');
+  await page.waitForTimeout(900);
+  assert.equal(await page.locator(icon).evaluate((el) => el.classList.contains('bounce')), false, 'le rebond se termine');
+  await page.keyboard.press('Alt+Digit1');
+  assert.equal(await page.locator(icon).evaluate((el) => el.classList.contains('bounce')), false, 'pas de rebond si la fenêtre est déjà ouverte');
+
+  await page.click('.win .light.min');
+  const win = page.locator('.win');
+  assert.equal(await win.evaluate((el) => el.classList.contains('minimizing')), true, 'la fenêtre se réduit');
+  const vars = await win.evaluate((el) => [el.style.getPropertyValue('--mdx'), el.style.getPropertyValue('--mdy')]);
+  assert.match(vars[0], /^-?\d+px$/);
+  assert.match(vars[1], /^\d+px$/, 'l\'icône est sous la fenêtre : trajet vers le bas');
+  await page.waitForTimeout(500);
+  assert.equal(await win.evaluate((el) => el.classList.contains('minimized')), true);
+  await page.click(dock);
+  assert.equal(await win.evaluate((el) => el.classList.contains('restoring')), true, 'la fenêtre revient depuis l\'icône');
+  await page.waitForTimeout(500);
+  assert.equal(await win.evaluate((el) => el.classList.contains('restoring') || el.classList.contains('minimized')), false);
+  assert.equal(await win.isVisible(), true);
+  await ctx.close();
+});
+
+test('dock : sans animation si les animations sont réduites (pas de rebond, réduction immédiate)', async () => {
+  const ctx = await site.browser.newContext({ ...DESKTOP, reducedMotion: 'reduce' });
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  const dock = '.dock-item:not(.home-item)[data-app=parcours]';
+  await page.click(dock);
+  assert.equal(await page.locator(dock + ' .ico').evaluate((el) => el.classList.contains('bounce')), false);
+  await page.click('.win .light.min');
+  const state = await page.locator('.win').evaluate((el) => [el.classList.contains('minimizing'), el.classList.contains('minimized')]);
+  assert.deepEqual(state, [false, true], 'réduite tout de suite, sans étape animée');
+  await page.click(dock);
+  assert.equal(await page.locator('.win').evaluate((el) => el.classList.contains('restoring')), false);
+  assert.equal(await page.locator('.win').isVisible(), true);
+  await ctx.close();
+});
+
 test('parcours : les certifications sont regroupées par thème, avec le lien LinkedIn', async () => {
   const ctx = await site.browser.newContext(DESKTOP);
   const page = await ctx.newPage();

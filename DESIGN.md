@@ -95,6 +95,7 @@ Replis obligatoires :
 - **Bascule de thème** : `aria-pressed`, respecte le thème système par défaut.
 
 ## Mouvement
+- **Dock** : rebond de l'icône à la première ouverture (700 ms, deux sauts décroissants), réduction et retour de la fenêtre le long du trajet vers l'icône (320 ms, déplacement et rétrécissement à 12 %). Variables `--mdx` / `--mdy` calculées à chaque fois d'après la position de l'icône. Sous `prefers-reduced-motion`, aucune de ces animations : la fenêtre est réduite et rouverte tout de suite.
 - Transitions courtes sur couleur, ombre et transformation (pile de navigation, ouverture des fenêtres).
 - Tout est désactivé sous `prefers-reduced-motion: reduce`. Aucun geste obligatoire.
 - Aucune animation automatique de plus de 5 secondes.
