@@ -314,11 +314,29 @@
           </div>
           <span class="mb-app" id="mb-app"></span>
           <div class="mb-menu">
+            <button type="button" class="mb-trigger" id="mb-file-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-file">Fichier</button>
+            <ul class="menu" id="menu-file" role="menu" aria-labelledby="mb-file-btn" hidden></ul>
+          </div>
+          <div class="mb-menu">
+            <button type="button" class="mb-trigger" id="mb-view-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-view">Présentation</button>
+            <ul class="menu" id="menu-view" role="menu" aria-labelledby="mb-view-btn" hidden>
+              <li role="none"><button type="button" role="menuitemcheckbox" id="vw-theme" aria-checked="false">Thème sombre</button></li>
+              <li role="none"><button type="button" role="menuitemcheckbox" id="vw-fs" aria-checked="false" hidden>Plein écran</button></li>
+            </ul>
+          </div>
+          <div class="mb-menu">
             <button type="button" class="mb-trigger" id="mb-win-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-win">Fenêtre</button>
             <ul class="menu" id="menu-win" role="menu" aria-labelledby="mb-win-btn" hidden>
               <li role="none"><button type="button" role="menuitem" id="mw-close" aria-disabled="true">Fermer la fenêtre</button></li>
               <li role="none"><button type="button" role="menuitem" id="mw-min" aria-disabled="true">Réduire</button></li>
               <li role="none"><button type="button" role="menuitem" id="mw-zoom" aria-disabled="true">Agrandir la fenêtre</button></li>
+            </ul>
+          </div>
+          <div class="mb-menu">
+            <button type="button" class="mb-trigger" id="mb-help-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-help">Aide</button>
+            <ul class="menu" id="menu-help" role="menu" aria-labelledby="mb-help-btn" hidden>
+              <li role="none"><button type="button" role="menuitem" id="hp-keys">Raccourcis clavier</button></li>
+              <li role="none"><button type="button" role="menuitem" id="hp-contact">Me contacter</button></li>
             </ul>
           </div>
         </div>
@@ -380,6 +398,7 @@
           <p class="visually-hidden" id="spot-status" role="status" aria-live="polite"></p>
         </div>
       </div>
+      <ul class="menu ctx" id="menu-ctx" role="menu" aria-label="Bureau" hidden></ul>
       <div class="about" id="about" hidden>
         <div class="about-backdrop" id="about-backdrop"></div>
         <div class="about-panel" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-describedby="about-desc">
