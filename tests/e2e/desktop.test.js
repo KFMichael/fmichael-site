@@ -685,3 +685,54 @@ test('bureau : les trois widgets tiennent à l\'écran sur 1440 × 900', async (
   assert.ok(box.y + box.height <= 900, 'la colonne de widgets ne déborde pas de l\'écran (' + Math.round(box.y + box.height) + ' px)');
   await ctx.close();
 });
+
+test('parcours : le stage au CNRS est dans la frise (dates, texte, lien HAL) sous Omnilog', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const items = await page.$$eval('#parcours .timeline > li', (lis) => lis.map((li) => li.querySelector('h3').textContent.replace(/\s+/g, ' ').trim()));
+  assert.equal(items[items.length - 1], 'Stagiaire ingénieur d\'étude et développement · CNRS', 'dernier de la frise (le plus ancien)');
+  assert.ok(items[items.length - 2].includes('Omnilog'), 'juste sous Omnilog');
+  const cnrs = page.locator('#parcours .timeline > li').last();
+  assert.deepEqual(await cnrs.locator('time').evaluateAll((ts) => ts.map((t) => t.getAttribute('datetime'))), ['2015-05', '2015-10']);
+  assert.match(await cnrs.innerText(), /M2 MIAGE NTDP/);
+  assert.match(await cnrs.innerText(), /Node\.js, HTML5, Git et GitHub, web sémantique, RDFS/);
+  const link = await cnrs.locator('a').evaluate((a) => [a.href, a.target, a.rel, a.textContent.includes('nouvel onglet')]);
+  assert.deepEqual(link, ['https://univ-cotedazur.hal.science/hal-01400924v1', '_blank', 'noopener', true]);
+  await ctx.close();
+});
+
+test('parcours : les certifications sont regroupées par thème, avec le lien LinkedIn', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.addInitScript(() => localStorage.setItem('mode', 'classic'));
+  await page.goto(site.base);
+  const card = page.locator('#parcours .card', { has: page.locator('h3', { hasText: 'Certifications' }) });
+  assert.deepEqual(await card.locator('h4').allTextContents(), ['Produit et agilité', 'Test et qualité', 'Intelligence artificielle', 'Gestion des services']);
+  const groups = await card.locator('h4 + ul').evaluateAll((uls) => uls.map((ul) => [...ul.querySelectorAll('li')].map((li) => li.textContent.trim())));
+  assert.deepEqual(groups, [
+    ['Certified Scrum Product Owner (2018)', 'Leading SAFe 4.6 (2019)'],
+    ['ISTQB Test Manager (2017)'],
+    ['Anthropic AI Professional (2026)'],
+    ['ITIL 4 Foundation (en cours)'],
+  ], 'les 5 certifications publiées, sans ajout ni oubli');
+  const link = await card.locator('a').evaluate((a) => [a.href, a.target, a.rel, a.textContent.includes('nouvel onglet')]);
+  assert.deepEqual(link, ['https://www.linkedin.com/in/kangahmichael/details/certifications/', '_blank', 'noopener', true]);
+  await ctx.close();
+});
+
+test('parcours : la fenêtre du bureau reprend le stage et les certifications, la recherche les trouve', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await enterDesktop(page);
+  await page.keyboard.press('Control+k');
+  await page.fill('#spot-input', 'cnrs');
+  assert.deepEqual(await page.$$eval('#spot-list [role=option]', (os) => os.map((o) => o.firstChild.textContent)), ['Parcours']);
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('.win[data-app=parcours]');
+  const text = await page.locator('.win[data-app=parcours]').innerText();
+  assert.match(text, /CNRS/);
+  assert.match(text, /Produit et agilité/);
+  await ctx.close();
+});
