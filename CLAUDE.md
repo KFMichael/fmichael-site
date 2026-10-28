@@ -21,10 +21,10 @@ Site vitrine personnel en français qui présente Michaël (Product Owner / Prod
 
 ## Décisions validées
 - Sections : Accueil, Parcours (CV : une entrée par poste, avec un court paragraphe, l'environnement technique et un lien quand Michaël donne des détails, comme pour le stage CNRS de 2015 ; formation ; certifications regroupées par thème, avec le lien vers sa page LinkedIn ; langues), Réalisations (études de cas : période, contexte, rôle, résultat ; une réalisation par expérience concernée, sans répéter la frise), Hobbies (tennis, football, jeux de société, voyage), Contact.
-- Les noms d'entreprises et d'organismes (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog, France Télévisions, Canal+, Aptar (ex-Voluntis, à publier sous le nom Aptar), CNRS et le projet de recherche ANR Azkar) et les liens des 4 boutiques Shopify sont publiables, ainsi que le site portfolio de Mirielle Rohr (lien vers l'aperçu `mirielle-r-portfolio.pages.dev`, à remplacer par `www.miriellerohr.com` une fois le domaine branché).
+- Les noms d'entreprises et d'organismes (Louis Vuitton, Galeries Lafayette, BHV, Davidson, Wemanity, Omnilog, France Télévisions, Canal+, Aptar (ex-Voluntis, à publier sous le nom Aptar), Chaumet (avec le lien chaumet.com), CNRS et le projet de recherche ANR Azkar) et les liens des 4 boutiques Shopify sont publiables, ainsi que le site portfolio de Mirielle Rohr (lien vers l'aperçu `mirielle-r-portfolio.pages.dev`, à remplacer par `www.miriellerohr.com` une fois le domaine branché).
 - Contact public : `k@fmichael.cloud`, LinkedIn `linkedin.com/in/kangahmichael`, GitHub `KFMichael`. Jamais de téléphone ni d'adresse postale.
 - Pas de CV en téléchargement ni de photo de Michaël. Hobbies : cartes photo, illustrations provisoires dans `img/hobby-*.svg` en attendant ses photos (`img/`, WebP, alt utile).
-- Source du contenu : le CV « PO technique senior » de Michaël. Ne pas inventer de chiffres : n'utiliser que ceux du CV.
+- Source du contenu : le CV « PO technique senior » de Michaël et son profil LinkedIn. Ne pas inventer de chiffres : n'utiliser que ceux de ces sources.
 - Site en français uniquement.
 
 ## Façon de travailler avec Michaël
