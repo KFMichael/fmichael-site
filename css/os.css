@@ -163,7 +163,30 @@ html.os-mode .site-footer { display: none; }
 .spot-opt[aria-selected="true"] .spot-opt-hint { color: inherit; }
 .spot-empty { margin: 0; padding: 0.8rem 0.9rem; color: var(--muted); max-width: none; }
 .spot-empty[hidden] { display: none; }
-html.phone-mode .spot, html.phone-mode .mb-icon { display: none; }
+
+/* À propos de ce site : boîte modale centrée, comme celle de macOS */
+.about { position: absolute; inset: 0; z-index: 75; display: grid; place-items: center; padding: 1rem; }
+.about[hidden] { display: none; }
+.about-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.25); }
+.about-panel {
+  position: relative; width: min(22rem, 100%); padding: 1.6rem 1.5rem 1.3rem; text-align: center; color: var(--text);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), var(--win-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
+}
+.about-logo { display: block; margin: 0 auto 0.6rem; }
+.about-panel h2 { margin: 0; font-size: 1.25rem; }
+.about-panel p { margin: 0.4rem 0 0; max-width: none; font-size: 0.95rem; text-wrap: balance; }
+.about-panel .about-role { color: var(--muted); font-size: 1rem; }
+.about-keys { margin: 1rem 0 0; padding: 0.7rem 0.2rem 0; border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); text-align: left; font-size: 0.9rem; }
+.about-keys div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.15rem 0; }
+.about-keys dt { color: var(--muted); }
+.about-keys dd { margin: 0; text-align: right; }
+.about-keys kbd { font: inherit; font-weight: 600; padding: 0 0.3rem; border: 1px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius: 0.3rem; }
+.about-ok { margin-top: 1rem; min-width: 6rem; min-height: 36px; padding: 0.3rem 1.2rem; border: 0; border-radius: 0.5rem; background: var(--accent); color: var(--accent-contrast); font-weight: 600; cursor: pointer; }
+.about-ok:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
+html.phone-mode .spot, html.phone-mode .about, html.phone-mode .mb-icon { display: none; }
 
 /* Menus déroulants de la barre : même verre que les fenêtres */
 .menu {
@@ -173,6 +196,7 @@ html.phone-mode .spot, html.phone-mode .mb-icon { display: none; }
   border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 0.6rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), var(--win-shadow);
 }
+.menu-right { left: auto; right: 0; min-width: 13rem; }
 .menu [hidden], .menu[hidden] { display: none !important; }
 .menu [role="menuitem"], .menu [role="menuitemcheckbox"] {
   display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; min-height: 32px; padding: 0.25rem 0.7rem;
@@ -604,14 +628,14 @@ html.phone-mode .home :focus-visible {
 
 /* Moins de transparence demandée : fonds opaques, sans flou (bureau et téléphone) */
 @media (prefers-reduced-transparency: reduce) {
-  .win, .widget, .desk-widget, .desk-photo, .menu, .spot-panel, .notif, .menubar, .dock, .lock-btn, #os .enter {
+  .win, .widget, .desk-widget, .desk-photo, .menu, .spot-panel, .about-panel, .notif, .menubar, .dock, .lock-btn, #os .enter {
     -webkit-backdrop-filter: none; backdrop-filter: none;
   }
-  .win, .widget, .desk-widget, .desk-photo, .menu, .spot-panel { background: var(--surface); }
+  .win, .widget, .desk-widget, .desk-photo, .menu, .spot-panel, .about-panel { background: var(--surface); }
   .titlebar { background: var(--bg); }
   .notif, .lock-btn, #os .enter, html.phone-mode .dock { background: #1b2a66; }
 }
 /* Contraste renforcé : contours pleins sur les surfaces en verre */
 @media (prefers-contrast: more) {
-  .win, .widget, .desk-widget, .desk-photo, .menu, .spot-panel, .notif, .dock { border: 2px solid currentColor; }
+  .win, .widget, .desk-widget, .desk-photo, .menu, .spot-panel, .about-panel, .notif, .dock { border: 2px solid currentColor; }
 }

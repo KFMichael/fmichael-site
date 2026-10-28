@@ -376,15 +376,17 @@ test('menus : le menu à ton nom s\'ouvre au clavier, flèches / Début / Fin / 
   await page.keyboard.press('ArrowDown');
   assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
   const focused = () => page.evaluate(() => document.activeElement.textContent.trim());
+  assert.equal(await focused(), 'À propos de ce site');
+  await page.keyboard.press('ArrowDown');
   assert.equal(await focused(), 'Verrouiller l\'écran');
   await page.keyboard.press('ArrowDown');
   assert.equal(await focused(), 'Thème sombre');
   await page.keyboard.press('End');
   assert.equal(await focused(), 'Version classique');
   await page.keyboard.press('ArrowDown');
-  assert.equal(await focused(), 'Verrouiller l\'écran', 'la navigation boucle');
+  assert.equal(await focused(), 'À propos de ce site', 'la navigation boucle');
   await page.keyboard.press('Home');
-  assert.equal(await focused(), 'Verrouiller l\'écran');
+  assert.equal(await focused(), 'À propos de ce site');
   await page.keyboard.press('Escape');
   assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
   assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-brand-btn', 'le focus revient au bouton du menu');
@@ -747,6 +749,76 @@ test('barre de menus : logo dessiné, nom d\'application macOS et titre de fenê
     assert.equal(await page.locator('.mb-app').textContent(), mac, id);
     await page.keyboard.press('Escape');
   }
+  await ctx.close();
+});
+
+test('à propos de ce site : boîte modale, le bureau est inerte, Échap la ferme et rend le focus', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('#mb-brand-btn');
+  await page.click('#os-about');
+  assert.equal(await page.locator('#about').isVisible(), true);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'about-ok', 'le focus va au bouton OK');
+  assert.equal(await page.getAttribute('.about-panel', 'role'), 'dialog');
+  assert.equal(await page.getAttribute('.about-panel', 'aria-modal'), 'true');
+  assert.equal(await page.evaluate(() => document.querySelector('.menubar').inert && document.querySelector('.dock').inert), true, 'le reste est inerte');
+  assert.match(await page.locator('.about-panel').innerText(), /sans lien avec Apple/i);
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#about').isVisible(), false);
+  assert.equal(await page.evaluate(() => document.querySelector('.dock').inert), false, 'plus d\'inertie');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-brand-btn', 'le focus revient au menu');
+  await page.click('#mb-brand-btn');
+  await page.click('#os-about');
+  await page.click('#about-ok');
+  assert.equal(await page.locator('#about').isVisible(), false, 'OK ferme la boîte');
+  await ctx.close();
+});
+
+test('centre de contrôle : thème, plein écran masqué si impossible, version classique', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  const theme = () => page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+  const before = await theme();
+  await page.click('#mb-ctrl-btn');
+  assert.equal(await page.getAttribute('#mb-ctrl-btn', 'aria-expanded'), 'true');
+  const checked = await page.getAttribute('#cc-theme', 'aria-checked');
+  await page.click('#cc-theme');
+  assert.notEqual(await theme(), before, 'le thème change');
+  await page.click('#mb-ctrl-btn');
+  assert.notEqual(await page.getAttribute('#cc-theme', 'aria-checked'), checked, 'l\'état suit le thème');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#menu-ctrl').isVisible(), false);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-ctrl-btn');
+  await page.click('#mb-ctrl-btn');
+  await page.click('#cc-classic');
+  assert.equal(await page.evaluate(() => document.documentElement.classList.contains('os-mode')), false, 'version classique');
+  await ctx.close();
+});
+
+test('raccourcis : Alt + 1 à 5 ouvrent les applications, rien quand la recherche est ouverte', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.keyboard.press('Alt+Digit1');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Pages');
+  await page.keyboard.press('Alt+Digit4');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Photos');
+  assert.equal(await page.locator('.win').count(), 2);
+  assert.equal(await page.getAttribute('.dock-item:not(.home-item)[data-app=parcours]', 'aria-keyshortcuts'), 'Alt+1');
+  await page.keyboard.press('Control+k');
+  await page.keyboard.press('Alt+Digit5');
+  assert.equal(await page.locator('.win').count(), 2, 'la recherche ouverte bloque le raccourci');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Alt+Digit5');
+  assert.equal(await page.locator('.mb-app').textContent(), 'Mail');
   await ctx.close();
 });
 

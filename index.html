@@ -303,6 +303,8 @@
           <div class="mb-menu">
             <button type="button" class="mb-trigger mb-brand" id="mb-brand-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-brand"><svg class="mb-logo" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.800-.8-3-.8-1.5 0-3 .9-3.800 2.300-1.600 2.800-.4 6.900 1.200 9.200.8 1.100 1.700 2.400 2.900 2.300 1.200 0 1.600-.7 3-.7 1.400 0 1.800.7 3 .7 1.300 0 2.100-1.100 2.800-2.200.9-1.300 1.300-2.500 1.300-2.600 0 0-2.500-1-2.500-3.800zM14.200 5.900c.6-.8 1.100-1.800.9-2.900-.9 0-2 .6-2.700 1.400-.6.700-1.100 1.800-1 2.800 1 .1 2-.5 2.800-1.300z"/></svg><span class="visually-hidden">Menu Michaël Kangah</span></button>
             <ul class="menu" id="menu-brand" role="menu" aria-labelledby="mb-brand-btn" hidden>
+              <li role="none"><button type="button" role="menuitem" id="os-about">À propos de ce site</button></li>
+              <li role="separator"></li>
               <li role="none"><button type="button" role="menuitem" id="os-lock">Verrouiller l'écran</button></li>
               <li role="none"><button type="button" role="menuitemcheckbox" id="os-theme" aria-checked="false">Thème sombre</button></li>
               <li role="none"><button type="button" role="menuitemcheckbox" data-action="fullscreen" aria-checked="false" hidden>Plein écran</button></li>
@@ -322,6 +324,15 @@
         </div>
         <div class="mb-right">
           <button type="button" class="mb-icon" id="mb-search" aria-haspopup="dialog" aria-expanded="false" aria-keyshortcuts="Control+K Meta+K" aria-label="Rechercher (Ctrl+K)" title="Rechercher (Ctrl+K)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+          <div class="mb-menu">
+            <button type="button" class="mb-icon mb-trigger" id="mb-ctrl-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-ctrl" aria-label="Centre de contrôle"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></svg></button>
+            <ul class="menu menu-right" id="menu-ctrl" role="menu" aria-labelledby="mb-ctrl-btn" hidden>
+              <li role="none"><button type="button" role="menuitemcheckbox" id="cc-theme" aria-checked="false">Thème sombre</button></li>
+              <li role="none"><button type="button" role="menuitemcheckbox" id="cc-fs" aria-checked="false" hidden>Plein écran</button></li>
+              <li role="separator"></li>
+              <li role="none"><button type="button" role="menuitem" id="cc-classic">Version classique</button></li>
+            </ul>
+          </div>
           <span class="mb-clock" id="mb-clock" aria-hidden="true"></span>
         </div>
       </div>
@@ -367,6 +378,22 @@
           <div class="spot-list" id="spot-list" role="listbox" aria-label="Résultats"></div>
           <p class="spot-empty" id="spot-empty" hidden>Aucun résultat.</p>
           <p class="visually-hidden" id="spot-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="about" id="about" hidden>
+        <div class="about-backdrop" id="about-backdrop"></div>
+        <div class="about-panel" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-describedby="about-desc">
+          <svg class="about-logo" viewBox="0 0 24 24" width="56" height="56" fill="currentColor" aria-hidden="true" focusable="false"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.800-.8-3-.8-1.5 0-3 .9-3.800 2.300-1.600 2.800-.4 6.900 1.200 9.200.8 1.100 1.700 2.400 2.900 2.300 1.200 0 1.600-.7 3-.7 1.400 0 1.800.7 3 .7 1.300 0 2.100-1.100 2.800-2.200.9-1.300 1.300-2.500 1.300-2.600 0 0-2.500-1-2.500-3.800zM14.200 5.900c.6-.8 1.100-1.800.9-2.900-.9 0-2 .6-2.700 1.400-.6.700-1.100 1.800-1 2.800 1 .1 2-.5 2.800-1.300z"/></svg>
+          <h2 id="about-title">Michaël Kangah</h2>
+          <p class="about-role">Product Owner technique senior</p>
+          <p id="about-desc">Site personnel fait main : HTML, CSS et JavaScript, sans dépendance. Sans lien avec Apple.</p>
+          <dl class="about-keys">
+            <div><dt>Recherche</dt><dd><kbd>Ctrl</kbd> ou <kbd>⌘</kbd> + <kbd>K</kbd></dd></div>
+            <div><dt>Ouvrir une application</dt><dd><kbd>Alt</kbd> + <kbd>1</kbd> à <kbd>5</kbd></dd></div>
+            <div><dt>Fermer une fenêtre</dt><dd><kbd>Échap</kbd></dd></div>
+            <div><dt>Redimensionner</dt><dd><kbd>Alt</kbd> + <kbd>Maj</kbd> + flèches</dd></div>
+          </dl>
+          <button type="button" class="about-ok" id="about-ok">OK</button>
         </div>
       </div>
       <button type="button" class="home-indicator" id="home-ind" aria-label="Revenir à l'accueil" hidden></button>

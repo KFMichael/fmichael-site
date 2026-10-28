@@ -576,6 +576,13 @@
     });
     document.getElementById('mw-zoom').textContent = win && win.classList.contains('max') ? 'Restaurer la fenêtre' : 'Agrandir la fenêtre';
   }
+  /* Centre de contrôle : mêmes réglages que le menu à ton nom (thème, plein écran, version classique), avec leur état. */
+  function syncControl() {
+    document.getElementById('cc-theme').setAttribute('aria-checked', root.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
+    var fs = document.getElementById('cc-fs');
+    fs.hidden = !(document.fullscreenEnabled && root.requestFullscreen);
+    fs.setAttribute('aria-checked', document.fullscreenElement ? 'true' : 'false');
+  }
   function closeMenus(returnFocus) {
     menuTriggers.forEach(function (t) {
       if (t.getAttribute('aria-expanded') !== 'true') return;
@@ -588,6 +595,7 @@
     closeMenus(false);
     var menu = menuOf(trigger);
     if (menu.id === 'menu-win') syncWindowMenu();
+    if (menu.id === 'menu-ctrl') syncControl();
     menu.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
     var items = menuItems(menu);
@@ -634,6 +642,10 @@
     os.querySelector('.mb-left').addEventListener('focusout', function (e) {
       if (e.relatedTarget && !e.relatedTarget.closest('.mb-menu')) closeMenus(false);
     });
+
+    document.getElementById('cc-theme').addEventListener('click', function () { themeBtn.click(); });
+    document.getElementById('cc-fs').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="fullscreen"]').click(); });
+    document.getElementById('cc-classic').addEventListener('click', function () { os.querySelector('#menu-brand [data-action="classic"]').click(); });
 
     document.getElementById('mw-close').addEventListener('click', function () {
       var id = activeWinId();
@@ -794,6 +806,50 @@
     });
   }
 
+  /* À propos de ce site : boîte modale (Échap, OK ou clic à côté la ferment), le reste du bureau est inerte tant qu'elle est ouverte. */
+  var about = document.getElementById('about');
+  var aboutReturn = null;
+  function aboutOpen() {
+    if (!about.hidden || isPhone() || os.hidden || !lock.hidden) return;
+    closeMenus(false);
+    aboutReturn = document.activeElement;
+    SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = true; });
+    about.hidden = false;
+    document.getElementById('about-ok').focus();
+  }
+  function aboutClose() {
+    if (about.hidden) return;
+    about.hidden = true;
+    SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = false; });
+    var back = aboutReturn && aboutReturn.isConnected && !aboutReturn.closest('.menu') ? aboutReturn : document.getElementById('mb-brand-btn');
+    back.focus();
+  }
+  function initAbout() {
+    document.getElementById('os-about').addEventListener('click', aboutOpen);
+    document.getElementById('about-ok').addEventListener('click', aboutClose);
+    document.getElementById('about-backdrop').addEventListener('pointerdown', aboutClose);
+    about.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); aboutClose(); }
+      else if (e.key === 'Tab') e.preventDefault();
+    });
+  }
+
+  /* Alt + 1 à 5 : ouvrir (ou ramener) l'application du dock. ⌘W, ⌘M et ⌘Tab sont réservés par le navigateur et le système : ils n'arrivent pas jusqu'à la page. */
+  var DOCK_ORDER = ['parcours', 'travail', 'dispo', 'hobbies', 'contact'];
+  function initAppShortcuts() {
+    DOCK_ORDER.forEach(function (id, i) {
+      Array.prototype.forEach.call(appButtons(id), function (b) { b.setAttribute('aria-keyshortcuts', 'Alt+' + (i + 1)); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      var m = /^Digit([1-5])$/.exec(e.code);
+      if (!m || isPhone() || os.hidden || !lock.hidden || !spot.hidden || !about.hidden) return;
+      e.preventDefault();
+      opener = null;
+      openApp(DOCK_ORDER[Number(m[1]) - 1]);
+    });
+  }
+
   /* Dock qui grossit au survol (souris seulement, coupé si les animations sont réduites).
      Chaque icône est mise à l'échelle par transform et décalée pour rester centrée : la mise en page ne bouge pas. */
   function initDockMagnify() {
@@ -908,6 +964,8 @@
     initDockMagnify();
     initMenus();
     initSpot();
+    initAbout();
+    initAppShortcuts();
     document.getElementById('os-lock').addEventListener('click', showLock);
     themeBtn.addEventListener('click', function () {
       document.getElementById('theme-toggle').click();
