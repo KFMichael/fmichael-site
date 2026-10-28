@@ -96,7 +96,7 @@ html.os-mode .site-footer { display: none; }
   .lock .notifs li:nth-child(2) { animation-delay: 1700ms; }
   .lock .notifs li:nth-child(3) { animation-delay: 2800ms; }
 }
-.n-icon { flex: none; width: 2.4rem; height: 2.4rem; border-radius: 0.6rem; display: grid; place-items: center; color: #fff; }
+.n-icon { flex: none; width: 2.4rem; height: 2.4rem; border-radius: 22.5%; display: grid; place-items: center; color: #fff; }
 .n-icon svg { width: 1.35rem; height: 1.35rem; }
 .n-body { display: grid; gap: 0.1rem; line-height: 1.35; }
 .n-body strong { font-size: 1rem; }
@@ -254,7 +254,7 @@ html.phone-mode .spot, html.phone-mode .mb-icon { display: none; }
   position: relative; display: grid; place-items: center; width: 3.4rem; height: 3.4rem; padding: 0;
   border: 0; background: transparent; border-radius: 0.9rem; text-decoration: none; color: #fff;
 }
-.dock-item .ico { width: 3.1rem; height: 3.1rem; border-radius: 0.8rem; display: grid; place-items: center; font-weight: 700; font-size: 1.15rem; color: #fff; }
+.dock-item .ico { width: 3.1rem; height: 3.1rem; border-radius: 22.5%; display: grid; place-items: center; font-weight: 700; font-size: 1.15rem; color: #fff; }
 .dock-item .ico svg { width: 1.6rem; height: 1.6rem; }
 .dock-item[aria-expanded="true"]::after, .dock-item[data-min="true"]::after {
   content: ""; position: absolute; bottom: -0.2rem; left: 50%; width: 5px; height: 5px; margin-left: -2.5px;
@@ -270,21 +270,22 @@ html.phone-mode .spot, html.phone-mode .mb-icon { display: none; }
 .dock-item:focus-visible { outline-offset: 2px; }
 
 /* Reflet doux en haut de chaque icône : donne du volume sans changer les couleurs */
-.ico { position: relative; overflow: hidden; }
+.ico { position: relative; overflow: hidden; box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.22), 0 1px 2px rgba(0, 0, 0, 0.25); }
 .ico::before {
   content: ""; position: absolute; inset: 0 0 48% 0; pointer-events: none; z-index: 0;
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0));
 }
 .ico > * { position: relative; z-index: 1; }
 
-.i-notes { background: linear-gradient(160deg, #f6c64f, #e8a01c); }
-.i-work { background: linear-gradient(160deg, #3b82f6, #1d4ed8); }
+.i-notes { background: linear-gradient(180deg, #ffb340, #ff8a00); }
+.i-work { background: linear-gradient(180deg, #52b6ff, #0a63e8); }
 .i-cal { background: #fff; color: #b3261e !important; border: 1px solid #c8cbd0; flex-direction: column; line-height: 1; }
-.i-ball { background: linear-gradient(160deg, #84cc16, #4d7c0f); }
-.i-mail { background: linear-gradient(160deg, #38bdf8, #0369a1); }
+.i-ball { background: #fff; border: 1px solid #c8cbd0; }
+.i-ball svg { width: 80% !important; height: 80% !important; }
+.i-mail { background: linear-gradient(180deg, #5ac8fa, #0a7cff); }
 .i-in { background: #0a66c2; }
 .i-git { background: #24292f; }
-.n-icon.i-notes, .n-icon.i-work, .n-icon.i-ball { color: #fff; }
+.n-icon.i-notes, .n-icon.i-work { color: #fff; }
 
 @media (prefers-reduced-motion: no-preference) {
   .dock-item { transition: transform 120ms; }
