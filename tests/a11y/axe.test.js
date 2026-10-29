@@ -123,6 +123,36 @@ test('bureau : recherche ouverte et fenêtres superposées', async () => {
   }
 });
 
+test('bureau : boîtes « À propos » et « Ouvrir sur mon téléphone », menus Fichier, Présentation, Aide et clic droit', async () => {
+  for (const scheme of ['light', 'dark']) {
+    const ctx = await browser.newContext({ ...DESKTOP, colorScheme: scheme });
+    const page = await ctx.newPage();
+    await page.goto(base);
+    await page.click('#enter');
+    await page.waitForSelector('#lock', { state: 'hidden' });
+    await page.click('#mb-brand-btn');
+    await page.click('#os-about');
+    assert.deepEqual(await violations(page), [], 'À propos, ' + scheme);
+    await page.keyboard.press('Escape');
+    await page.click('#mb-help-btn');
+    await page.click('#hp-qr');
+    assert.deepEqual(await violations(page), [], 'Ouvrir sur mon téléphone, ' + scheme);
+    await page.keyboard.press('Escape');
+    for (const menu of ['file', 'view', 'help']) {
+      await page.click('#mb-' + menu + '-btn');
+      assert.deepEqual(await violations(page), [], 'menu ' + menu + ', ' + scheme);
+      await page.keyboard.press('Escape');
+    }
+    await page.click('.dock-item:not(.home-item)[data-app=contact]');
+    await page.click('#mb-file-btn');
+    assert.deepEqual(await violations(page), [], 'menu Fichier avec fenêtre, ' + scheme);
+    await page.keyboard.press('Escape');
+    await page.mouse.click(700, 420, { button: 'right' });
+    assert.deepEqual(await violations(page), [], 'menu contextuel, ' + scheme);
+    await ctx.close();
+  }
+});
+
 test('version classique (mobile)', async () => {
   const ctx = await browser.newContext({ viewport: { width: 375, height: 740 } });
   const page = await ctx.newPage();

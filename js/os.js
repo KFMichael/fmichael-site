@@ -783,6 +783,7 @@
       { group: 'Applications', label: 'Contact', hint: 'E-mail, LinkedIn, GitHub', keywords: 'mail email', run: function () { openApp('contact'); } },
       { group: 'Actions', label: 'Verrouiller l\'écran', hint: '', keywords: 'ecran verrouillage', run: function () { document.getElementById('os-lock').click(); } },
       { group: 'Actions', label: dark ? 'Passer au thème clair' : 'Passer au thème sombre', hint: '', keywords: 'theme sombre clair apparence', run: function () { themeBtn.click(); } },
+      { group: 'Actions', label: 'Ouvrir sur mon téléphone', hint: 'Code QR', keywords: 'qr code telephone scanner mobile smartphone', run: function () { qrModal.open(); } },
       { group: 'Actions', label: 'Version express', hint: 'Une page, 30 secondes', keywords: 'express recruteur synthese resume rapide', run: function () { location.href = 'express.html'; } },
       { group: 'Actions', label: 'Version classique', hint: 'Page simple', keywords: 'classique page simple', run: function () { os.querySelector('#menu-brand [data-action="classic"]').click(); } },
       { group: 'Liens', label: 'Prendre rendez-vous', hint: 'Calendly, ' + LINK_NOTE, keywords: 'calendly disponibilite reunion', url: 'https://calendly.com/kangahmichael/new-meeting' },
@@ -849,7 +850,7 @@
   }
 
   function spotOpen() {
-    if (!spot.hidden || isPhone() || os.hidden || !lock.hidden) return;
+    if (!spot.hidden || modalOpen() || isPhone() || os.hidden || !lock.hidden) return;
     closeMenus(false);
     spotReturn = document.activeElement;
     SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = true; });
@@ -906,32 +907,49 @@
     });
   }
 
-  /* À propos de ce site : boîte modale (Échap, OK ou clic à côté la ferment), le reste du bureau est inerte tant qu'elle est ouverte. */
-  var about = document.getElementById('about');
-  var aboutReturn = null;
-  function aboutOpen() {
-    if (!about.hidden || isPhone() || os.hidden || !lock.hidden) return;
-    closeMenus(false);
-    aboutReturn = document.activeElement;
-    SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = true; });
-    about.hidden = false;
-    document.getElementById('about-ok').focus();
-  }
-  function aboutClose() {
-    if (about.hidden) return;
-    about.hidden = true;
-    SPOT_INERT.forEach(function (sel) { var el = desktop.querySelector(sel); if (el) el.inert = false; });
-    var back = aboutReturn && aboutReturn.isConnected && !aboutReturn.closest('.menu') ? aboutReturn : document.getElementById('mb-brand-btn');
-    back.focus();
-  }
-  function initAbout() {
-    document.getElementById('os-about').addEventListener('click', aboutOpen);
-    document.getElementById('about-ok').addEventListener('click', aboutClose);
-    document.getElementById('about-backdrop').addEventListener('pointerdown', aboutClose);
-    about.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); aboutClose(); }
-      else if (e.key === 'Tab') e.preventDefault();
+  /* Boîtes modales du bureau (À propos de ce site, Ouvrir sur mon téléphone) : Échap, OK ou clic à côté les ferment, Tab reste dans la boîte,
+     le reste du bureau est inerte tant qu'elles sont ouvertes, le focus revient à l'élément qui les a ouvertes (ou au bouton de repli). */
+  function makeModal(id, okId, backdropId, fallbackId) {
+    var el = document.getElementById(id);
+    var ret = null;
+    function open() {
+      if (modalOpen() || isPhone() || os.hidden || !lock.hidden) return;
+      closeMenus(false);
+      ret = document.activeElement;
+      SPOT_INERT.forEach(function (sel) { var n = desktop.querySelector(sel); if (n) n.inert = true; });
+      el.hidden = false;
+      document.getElementById(okId).focus();
+    }
+    function close() {
+      if (el.hidden) return;
+      el.hidden = true;
+      SPOT_INERT.forEach(function (sel) { var n = desktop.querySelector(sel); if (n) n.inert = false; });
+      var back = ret && ret.isConnected && !ret.closest('.menu') ? ret : document.getElementById(fallbackId);
+      back.focus();
+    }
+    document.getElementById(okId).addEventListener('click', close);
+    document.getElementById(backdropId).addEventListener('pointerdown', close);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
+      else if (e.key === 'Tab') {
+        var items = Array.prototype.slice.call(el.querySelectorAll('a[href], button')).filter(function (n) { return !n.hidden; });
+        var at = items.indexOf(document.activeElement);
+        e.preventDefault();
+        items[(at + (e.shiftKey ? -1 : 1) + items.length) % items.length].focus();
+      }
     });
+    return { el: el, open: open, close: close };
+  }
+  var about = document.getElementById('about');
+  var phoneQr = document.getElementById('phone-qr');
+  var aboutModal, qrModal;
+  function modalOpen() { return !about.hidden || !phoneQr.hidden; }
+  function aboutOpen() { aboutModal.open(); }
+  function initAbout() {
+    aboutModal = makeModal('about', 'about-ok', 'about-backdrop', 'mb-brand-btn');
+    qrModal = makeModal('phone-qr', 'phone-qr-ok', 'phone-qr-backdrop', 'mb-help-btn');
+    document.getElementById('os-about').addEventListener('click', aboutOpen);
+    document.getElementById('hp-qr').addEventListener('click', qrModal.open);
   }
 
   /* Menu contextuel du bureau (clic droit sur le fond) : un complément, tout existe aussi dans la barre de menus. */
@@ -962,7 +980,7 @@
       back = null;
     }
     desktop.addEventListener('contextmenu', function (e) {
-      if (isPhone() || os.hidden || !lock.hidden || !spot.hidden || !about.hidden) return;
+      if (isPhone() || os.hidden || !lock.hidden || !spot.hidden || modalOpen()) return;
       if (e.target.closest('.win, .dock, .menubar, .desk-widgets, .menu, .spot, .about, #home')) return;
       e.preventDefault();
       closeMenus(false);
@@ -1002,7 +1020,7 @@
     document.addEventListener('keydown', function (e) {
       if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       var m = /^Digit([1-5])$/.exec(e.code);
-      if (!m || isPhone() || os.hidden || !lock.hidden || !spot.hidden || !about.hidden) return;
+      if (!m || isPhone() || os.hidden || !lock.hidden || !spot.hidden || modalOpen()) return;
       e.preventDefault();
       opener = null;
       openApp(DOCK_ORDER[Number(m[1]) - 1]);

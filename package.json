@@ -8,7 +8,8 @@
     "test:a11y": "node --test \"tests/a11y/*.test.js\"",
     "test:e2e": "node --test \"tests/e2e/*.test.js\"",
     "check:site": "bash scripts/assemble-site.sh _site",
-    "check:lighthouse": "node scripts/lighthouse.mjs"
+    "check:lighthouse": "node scripts/lighthouse.mjs",
+    "make:qr": "node scripts/make-qr.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -16,7 +17,9 @@
     "chrome-launcher": "1.2.2",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
+    "jsqr": "1.4.0",
     "lighthouse": "13.6.0",
-    "playwright": "1.63.0"
+    "playwright": "1.63.0",
+    "qrcode": "1.5.4"
   }
 }

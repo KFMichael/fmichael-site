@@ -353,6 +353,7 @@
               <li role="none"><button type="button" role="menuitem" id="hp-keys">Raccourcis clavier</button></li>
               <li role="none"><button type="button" role="menuitem" id="hp-contact">Me contacter</button></li>
               <li role="none"><button type="button" role="menuitem" id="hp-express">Version express</button></li>
+              <li role="none"><button type="button" role="menuitem" id="hp-qr">Ouvrir sur mon téléphone</button></li>
             </ul>
           </div>
         </div>
@@ -429,6 +430,17 @@
             <div><dt>Redimensionner</dt><dd><kbd>Alt</kbd> + <kbd>Maj</kbd> + flèches</dd></div>
           </dl>
           <button type="button" class="about-ok" id="about-ok">OK</button>
+        </div>
+      </div>
+      <div class="about" id="phone-qr" hidden>
+        <div class="about-backdrop" id="phone-qr-backdrop"></div>
+        <div class="about-panel" role="dialog" aria-modal="true" aria-labelledby="phone-qr-title" aria-describedby="phone-qr-desc">
+          <h2 id="phone-qr-title">Ouvrir sur mon téléphone</h2>
+          <img class="qr-img" src="img/qr-express.svg" alt="Code QR vers la version express, fmichael.cloud/express" width="220" height="220">
+          <p id="phone-qr-desc">Scanne ce code avec l'appareil photo de ton téléphone pour ouvrir la version express.</p>
+          <p class="about-role">fmichael.cloud/express</p>
+          <p class="qr-files">Pour imprimer : <a href="img/qr-express.png" download="qr-michael-kangah-express.png">PNG</a> · <a href="img/qr-express.svg" download="qr-michael-kangah-express.svg">SVG</a></p>
+          <button type="button" class="about-ok" id="phone-qr-ok">OK</button>
         </div>
       </div>
       <button type="button" class="home-indicator" id="home-ind" aria-label="Revenir à l'accueil" hidden></button>
