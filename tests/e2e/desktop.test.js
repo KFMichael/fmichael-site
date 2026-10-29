@@ -766,10 +766,10 @@ test('à propos de ce site : boîte modale, le bureau est inerte, Échap la ferm
   await page.click('#os-about');
   assert.equal(await page.locator('#about').isVisible(), true);
   assert.equal(await page.evaluate(() => document.activeElement.id), 'about-ok', 'le focus va au bouton OK');
-  assert.equal(await page.getAttribute('.about-panel', 'role'), 'dialog');
-  assert.equal(await page.getAttribute('.about-panel', 'aria-modal'), 'true');
+  assert.equal(await page.getAttribute('#about .about-panel', 'role'), 'dialog');
+  assert.equal(await page.getAttribute('#about .about-panel', 'aria-modal'), 'true');
   assert.equal(await page.evaluate(() => document.querySelector('.menubar').inert && document.querySelector('.dock').inert), true, 'le reste est inerte');
-  assert.match(await page.locator('.about-panel').innerText(), /sans lien avec Apple/i);
+  assert.match(await page.locator('#about .about-panel').innerText(), /sans lien avec Apple/i);
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('#about').isVisible(), false);
   assert.equal(await page.evaluate(() => document.querySelector('.dock').inert), false, 'plus d\'inertie');
@@ -1031,6 +1031,69 @@ test('parcours : la carte « Outils du quotidien » est dans la page classique e
   await desk.keyboard.press('Control+k');
   await desk.fill('#spot-input', 'jira');
   assert.match(await desk.locator('#spot-list').innerText(), /Parcours/);
+  await ctx.close();
+});
+
+test('code QR : les fichiers se décodent vers l\'adresse de la version express, à toutes les tailles', async () => {
+  const canonical = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../../express.html'), 'utf8').match(/<link rel="canonical" href="([^"]+)"/)[1];
+  assert.equal(canonical, 'https://fmichael.cloud/express');
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base + 'express.html');
+  await page.addScriptTag({ path: require.resolve('jsqr/dist/jsQR.js') });
+  const decode = (src, size) => page.evaluate(async ([url, px]) => {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = c.height = px;
+    const g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    g.fillStyle = '#fff';
+    g.fillRect(0, 0, px, px);
+    g.drawImage(img, 0, 0, px, px);
+    const r = window.jsQR(g.getImageData(0, 0, px, px).data, px, px);
+    return r ? r.data : null;
+  }, [src, size]);
+  for (const size of [148, 296, 1000]) {
+    assert.equal(await decode(site.base + 'img/qr-express.svg', size), canonical, 'SVG à ' + size + ' px');
+  }
+  assert.equal(await decode(site.base + 'img/qr-express.png', 1000), canonical, 'PNG à 1000 px');
+  await ctx.close();
+});
+
+test('« Ouvrir sur mon téléphone » : boîte modale avec le code QR, Tab reste dedans, Échap la ferme et rend le focus', async () => {
+  const ctx = await site.browser.newContext(DESKTOP);
+  const page = await ctx.newPage();
+  await page.goto(site.base);
+  await page.click('#enter');
+  await page.waitForSelector('#lock', { state: 'hidden' });
+  await page.click('#mb-help-btn');
+  await page.click('#hp-qr');
+  assert.equal(await page.locator('#phone-qr').isVisible(), true);
+  assert.equal(await page.getAttribute('#phone-qr .about-panel', 'aria-modal'), 'true');
+  assert.match(await page.getAttribute('#phone-qr img', 'alt'), /fmichael\.cloud\/express/);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'phone-qr-ok');
+  assert.equal(await page.evaluate(() => document.querySelector('.dock').inert), true);
+  const focus = () => page.evaluate(() => document.activeElement.textContent.trim());
+  const seen = [];
+  for (let i = 0; i < 4; i++) { await page.keyboard.press('Tab'); seen.push(await focus()); }
+  assert.deepEqual(seen, ['PNG', 'SVG', 'OK', 'PNG'], 'Tab fait le tour de la boîte sans en sortir');
+  assert.equal(await page.getAttribute('#phone-qr a[href$=".png"]', 'download'), 'qr-michael-kangah-express.png');
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await focus(), 'OK', 'Maj + Tab revient en arrière');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#phone-qr').isVisible(), false);
+  assert.equal(await page.evaluate(() => document.querySelector('.dock').inert), false);
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'mb-help-btn', 'le focus revient au menu Aide');
+  // Par la recherche, et pas deux boîtes à la fois
+  await page.keyboard.press('Control+k');
+  await page.fill('#spot-input', 'telephone');
+  assert.match(await page.locator('#spot-list').innerText(), /Ouvrir sur mon téléphone/);
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#phone-qr').isVisible(), true);
+  await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#spot').isVisible(), false, 'la recherche ne s\'ouvre pas par-dessus la boîte');
   await ctx.close();
 });
 
